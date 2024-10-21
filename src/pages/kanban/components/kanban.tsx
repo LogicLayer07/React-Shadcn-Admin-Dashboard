@@ -88,7 +88,7 @@ export default function EnhancedVulnerabilityKanban() {
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false)
   const [isAnalyticsDialogOpen, setIsAnalyticsDialogOpen] = useState(false)
   const [isAutoRefreshEnabled, setIsAutoRefreshEnabled] = useState(false)
-  const [refreshInterval, setRefreshInterval] = useState(60000) // 1 minute default
+  const [refreshInterval, setRefreshInterval] = useState(60000) 
   const [riskScore, setRiskScore] = useState(0)
   const [isRiskScoreDialogOpen, setIsRiskScoreDialogOpen] = useState(false)
   const [tags, setTags] = useState<string[]>([])
@@ -126,13 +126,12 @@ export default function EnhancedVulnerabilityKanban() {
   }, [isAutoRefreshEnabled, refreshInterval])
 
   const refreshData = useCallback(() => {
-    // Simulating data refresh
     setColumns(prevColumns => {
       const updatedColumns = { ...prevColumns }
       Object.keys(updatedColumns).forEach(columnId => {
         updatedColumns[columnId].items = updatedColumns[columnId].items.map(item => ({
           ...item,
-          score: Math.floor(Math.random() * 100) // Simulating score update
+          score: Math.floor(Math.random() * 100) 
         }))
       })
       return updatedColumns
@@ -151,7 +150,7 @@ export default function EnhancedVulnerabilityKanban() {
     const highCount = allVulnerabilities.filter(vuln => vuln.severity === 'High').length
 
     const riskScore = (averageScore * 0.5) + (criticalCount * 10) + (highCount * 5)
-    setRiskScore(Math.min(100, Math.max(0, riskScore))) // Ensure score is between 0 and 100
+    setRiskScore(Math.min(100, Math.max(0, riskScore)))
   }, [columns])
 
   useEffect(() => {
@@ -992,7 +991,7 @@ export default function EnhancedVulnerabilityKanban() {
                     top: -10,
                     bottom: -10,
                   }}
-                  data={Object.entries(columns).map(([columnId, column]) => ({
+                  data={Object.entries(columns).map(([_, column]) => ({
                     activity: column.title.toLowerCase(),
                     value: (column.items.length) * 100, 
                     fill: `var(--color-${column.title.toLowerCase()})`, 
