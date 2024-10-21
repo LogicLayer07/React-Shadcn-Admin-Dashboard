@@ -1280,10 +1280,10 @@ export default function EnhancedVulnerabilityKanban() {
                 </Label>
                 <div className="col-span-3 space-y-2">
                   {selectedVulnerability.comments.map((comment, index) => (
-                    <div key={index} className="bg-gray-100 p-2 rounded">
+                    <div key={index} className="p-2 rounded">
                       <p className="text-sm font-medium">{comment.user}</p>
                       <p className="text-sm">{comment.text}</p>
-                      <p className="text-xs text-gray-500">{format(comment.timestamp, 'PP p')}</p>
+                      <p className="text-xs">{format(comment.timestamp, 'PP p')}</p>
                     </div>
                   ))}
                   <div className="flex gap-2">
