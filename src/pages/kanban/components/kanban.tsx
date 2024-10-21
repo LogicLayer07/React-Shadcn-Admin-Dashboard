@@ -1,8 +1,8 @@
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd'
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { Search, Grid, List, Plus, Calendar, MoreVertical, Trash2, Edit3, Download, Clock, Flag, PanelRightClose, FileText, FileSpreadsheetIcon, FileJson } from 'lucide-react'
+import { Search, Grid, List, Plus, Calendar, MoreVertical, Trash2, Edit3, Download, Clock, Flag, PanelRightClose, FileText, FileSpreadsheetIcon, FileJson, BarChart2, RefreshCw, AlertTriangle } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -51,11 +51,16 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { IconFileTypeCsv, IconFileTypePdf } from '@tabler/icons-react';
 import { initialData, initialUsers } from '../data/kanbans';
 import { Activity, Comment, Severity, Vulnerability } from '../data/schema';
+import { Progress } from "@/components/ui/progress"
+import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
+import { ChartContainer } from '@/components/ui/chart';
+
 declare module 'jspdf' {
   interface jsPDF {
     autoTable: (options: any) => jsPDF;
   }
 }
+
 export default function EnhancedVulnerabilityKanban() {
   const [columns, setColumns] = useState(initialData)
   const [searchTerm, setSearchTerm] = useState('')
@@ -68,6 +73,7 @@ export default function EnhancedVulnerabilityKanban() {
   const [newVulnerability, setNewVulnerability] = useState<Omit<Vulnerability, 'id' | 'status' | 'comments' | 'priority'>>({
     title: '',
     severity: 'Low',
+    tags: '',
     type: '',
     score: 0,
     assignedTo: [],
@@ -80,7 +86,14 @@ export default function EnhancedVulnerabilityKanban() {
   const [selectedItems, setSelectedItems] = useState<string[]>([])
   const [activityLog, setActivityLog] = useState<Activity[]>([])
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false)
-
+  const [isAnalyticsDialogOpen, setIsAnalyticsDialogOpen] = useState(false)
+  const [isAutoRefreshEnabled, setIsAutoRefreshEnabled] = useState(false)
+  const [refreshInterval, setRefreshInterval] = useState(60000) // 1 minute default
+  const [riskScore, setRiskScore] = useState(0)
+  const [isRiskScoreDialogOpen, setIsRiskScoreDialogOpen] = useState(false)
+  const [tags, setTags] = useState<string[]>([])
+  const [newTag, setNewTag] = useState('')
+  console.log(tags)
   useEffect(() => {
     const checkDueDates = () => {
       const today = new Date()
@@ -102,6 +115,48 @@ export default function EnhancedVulnerabilityKanban() {
     const interval = setInterval(checkDueDates, 24 * 60 * 60 * 1000)
     return () => clearInterval(interval)
   }, [columns])
+
+  useEffect(() => {
+    if (isAutoRefreshEnabled) {
+      const interval = setInterval(() => {
+        refreshData()
+      }, refreshInterval)
+      return () => clearInterval(interval)
+    }
+  }, [isAutoRefreshEnabled, refreshInterval])
+
+  const refreshData = useCallback(() => {
+    // Simulating data refresh
+    setColumns(prevColumns => {
+      const updatedColumns = { ...prevColumns }
+      Object.keys(updatedColumns).forEach(columnId => {
+        updatedColumns[columnId].items = updatedColumns[columnId].items.map(item => ({
+          ...item,
+          score: Math.floor(Math.random() * 100) // Simulating score update
+        }))
+      })
+      return updatedColumns
+    })
+    toast({
+      title: "Data Refreshed",
+      description: "Vulnerability data has been updated.",
+    })
+  }, [])
+
+  const calculateRiskScore = useCallback(() => {
+    const allVulnerabilities = Object.values(columns).flatMap(column => column.items)
+    const totalScore = allVulnerabilities.reduce((sum, vuln) => sum + vuln.score, 0)
+    const averageScore = totalScore / allVulnerabilities.length
+    const criticalCount = allVulnerabilities.filter(vuln => vuln.severity === 'Critical').length
+    const highCount = allVulnerabilities.filter(vuln => vuln.severity === 'High').length
+
+    const riskScore = (averageScore * 0.5) + (criticalCount * 10) + (highCount * 5)
+    setRiskScore(Math.min(100, Math.max(0, riskScore))) // Ensure score is between 0 and 100
+  }, [columns])
+
+  useEffect(() => {
+    calculateRiskScore()
+  }, [columns, calculateRiskScore])
 
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result
@@ -190,7 +245,8 @@ export default function EnhancedVulnerabilityKanban() {
       id: newId,
       status: 'Draft',
       comments: [],
-      priority: false
+      priority: false,
+      tags: []
     }
     setColumns(prev => ({
       ...prev,
@@ -204,6 +260,7 @@ export default function EnhancedVulnerabilityKanban() {
       title: '',
       severity: 'Low',
       type: '',
+      tags: '',
       score: 0,
       assignedTo: [],
       startDate: new Date(),
@@ -233,7 +290,7 @@ export default function EnhancedVulnerabilityKanban() {
 
     setIsDetailDialogOpen(false)
     setSelectedVulnerability(null)
-    addActivity(`Updated  vulnerability "${selectedVulnerability.title}"`)
+    addActivity(`Updated vulnerability "${selectedVulnerability.title}"`)
     toast({
       title: "Vulnerability updated",
       description: `${selectedVulnerability.title} has been updated`,
@@ -307,6 +364,7 @@ export default function EnhancedVulnerabilityKanban() {
   const handleBulkAction = (action: 'move' | 'assign', value: string) => {
     setColumns(prev => {
       const updatedColumns = { ...prev }
+
       selectedItems.forEach(itemId => {
         for (const [columnId, column] of Object.entries(updatedColumns)) {
           const itemIndex = column.items.findIndex(item => item.id === itemId)
@@ -434,6 +492,27 @@ export default function EnhancedVulnerabilityKanban() {
     addActivity(`Exported data in ${format.toUpperCase()} format`);
     setIsExportDialogOpen(false);
   };
+
+  const handleAddTag = () => {
+    if (newTag && selectedVulnerability) {
+      setSelectedVulnerability(prev => ({
+        ...prev!,
+        tags: [...(prev!.tags || []), newTag]
+      }))
+      setNewTag('')
+      setTags(prevTags => [...new Set([...prevTags, newTag])])
+    }
+  }
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    if (selectedVulnerability) {
+      setSelectedVulnerability(prev => ({
+        ...prev!,
+        tags: prev!.tags.filter((tag: any) => tag !== tagToRemove)
+      }))
+    }
+  }
+
   const VulnerabilityCard: React.FC<{ item: Vulnerability; index: number }> = ({ item, index }) => (
     <Draggable key={item.id.toString()} draggableId={item.id.toString()} index={index}>
       {(provided) => (
@@ -549,6 +628,15 @@ export default function EnhancedVulnerabilityKanban() {
                   </DropdownMenu>
                 </div>
               </div>
+              {item.tags && item.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {item.tags.map((tag: any, index: any) => (
+                    <Badge key={index} variant="secondary" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -819,7 +907,6 @@ export default function EnhancedVulnerabilityKanban() {
                 <IconFileTypePdf className="mr-2" /> PDF
               </Button>
             </div>
-
           </DialogContent>
         </Dialog>
         <Sheet>
@@ -844,6 +931,117 @@ export default function EnhancedVulnerabilityKanban() {
             </div>
           </SheetContent>
         </Sheet>
+        <Dialog open={isAnalyticsDialogOpen} onOpenChange={setIsAnalyticsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm">
+              <BarChart2 className="h-4 w-4 mr-2" /> Analytics
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[625px]">
+            <DialogHeader>
+              <DialogTitle>Vulnerability Analytics</DialogTitle>
+              <DialogDescription>
+                Overview of vulnerability statistics and trends.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <h3 className="font-semibold mb-2">Severity Distribution</h3>
+              <div className="flex justify-between mb-4">
+                {['Critical', 'High', 'Medium', 'Low'].map((severity) => (
+                  <div key={severity} className="text-center">
+                    <div className={`w-16 h-16 rounded-full flex items-center justify-center ${getSeverityColor(severity as Severity)}`}>
+                      {allVulnerabilities.filter(v => v.severity === severity).length}
+                    </div>
+                    <p className="mt-1 text-sm">{severity}</p>
+                  </div>
+                ))}
+              </div>
+              <h3 className="font-semibold mb-2">Status Distribution</h3>
+              <div className="flex justify-between mb-4">
+                {Object.entries(columns).map(([columnId, column]) => (
+                  <div key={columnId} className="text-center">
+                    <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
+                      {column.items.length}
+                    </div>
+                    <p className="mt-1 text-sm">{column.title}</p>
+                  </div>
+                ))}
+              </div>
+              <h3 className="font-semibold mb-2">Timeline</h3>
+              <ChartContainer
+                config={{
+                  move: {
+                    label: "Move",
+                    color: "hsl(var(--chart-1))",
+                  },
+                  exercise: {
+                    label: "Exercise",
+                    color: "hsl(var(--chart-2))",
+                  },
+                  stand: {
+                    label: "Stand",
+                    color: "hsl(var(--chart-3))",
+                  },
+                }}
+                className="mx-auto aspect-square w-full max-w-[80%]"
+              >
+                <RadialBarChart
+                  margin={{
+                    left: -10,
+                    right: -10,
+                    top: -10,
+                    bottom: -10,
+                  }}
+                  data={Object.entries(columns).map(([columnId, column]) => ({
+                    activity: column.title.toLowerCase(),
+                    value: (column.items.length) * 100, 
+                    fill: `var(--color-${column.title.toLowerCase()})`, 
+                  }))}
+                  innerRadius="20%"
+                  barSize={24}
+                  startAngle={90}
+                  endAngle={450}
+                >
+                  <PolarAngleAxis
+                    type="number"
+                    domain={[0, 100]}
+                    dataKey="value"
+                    tick={false}
+                  />
+                  <RadialBar dataKey="value" background cornerRadius={5} />
+                </RadialBarChart>
+              </ChartContainer>
+            </div>
+
+          </DialogContent>
+        </Dialog>
+        <Dialog open={isRiskScoreDialogOpen} onOpenChange={setIsRiskScoreDialogOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm">
+              <AlertTriangle className="h-4 w-4 mr-2" /> Risk Score
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Overall Risk Score</DialogTitle>
+              <DialogDescription>
+                Current risk assessment based on vulnerabilities.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <div className="text-center mb-4">
+                <span className="text-4xl font-bold">{riskScore.toFixed(2)}</span>
+                <span className="text-sm text-muted-foreground">/100</span>
+              </div>
+              <Progress value={riskScore} className="w-full" />
+              <p className="mt-4 text-sm text-center">
+                {riskScore < 30 ? "Low risk. Keep monitoring." :
+                  riskScore < 70 ? "Moderate risk. Take action on critical items." :
+                    "High risk. Immediate attention required."}
+              </p>
+            </div>
+          </DialogContent>
+        </Dialog>
         <ToggleGroup type="single" value={viewMode} onValueChange={(value: 'board' | 'list') => value && setViewMode(value)}>
           <ToggleGroupItem value="board" aria-label="Board view">
             <Grid className="h-4 w-4" />
@@ -1099,6 +1297,36 @@ export default function EnhancedVulnerabilityKanban() {
                   </div>
                 </div>
               </div>
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label htmlFor="tags" className="text-right">
+                  Tags
+                </Label>
+                <div className="col-span-3">
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {selectedVulnerability.tags && selectedVulnerability.tags.map((tag: any, index: any) => (
+                      <Badge key={index} variant="secondary" className="text-xs">
+                        {tag}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-4 w-4 p-0 ml-2"
+                          onClick={() => handleRemoveTag(tag)}
+                        >
+                          ×
+                        </Button>
+                      </Badge>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Add a tag..."
+                      value={newTag}
+                      onChange={(e) => setNewTag(e.target.value)}
+                    />
+                    <Button onClick={handleAddTag}>Add</Button>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
           <DialogFooter>
@@ -1107,6 +1335,35 @@ export default function EnhancedVulnerabilityKanban() {
         </DialogContent>
       </Dialog>
 
+      <div className="mt-4 flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <Label htmlFor="autoRefresh">Auto Refresh:</Label>
+          <Checkbox
+            id="autoRefresh"
+            checked={isAutoRefreshEnabled}
+            onCheckedChange={(checked) => setIsAutoRefreshEnabled(checked as boolean)}
+          />
+        </div>
+        {isAutoRefreshEnabled && (
+          <Select
+            value={refreshInterval.toString()}
+            onValueChange={(value) => setRefreshInterval(parseInt(value))}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Refresh Interval" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="30000">30 seconds</SelectItem>
+              <SelectItem value="60000">1 minute</SelectItem>
+              <SelectItem value="300000">5 minutes</SelectItem>
+              <SelectItem value="600000">10 minutes</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+        <Button onClick={refreshData}>
+          <RefreshCw className="h-4 w-4 mr-2" /> Refresh Now
+        </Button>
+      </div>
     </div>
   )
 }

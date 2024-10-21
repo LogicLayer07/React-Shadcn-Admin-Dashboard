@@ -18,6 +18,7 @@ export interface Vulnerability {
   title: string
   severity: Severity
   type: string
+  tags: any
   score: number
   assignedTo: string[]
   status: string
