@@ -1,11 +1,9 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react'
-import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd'
+import { useState, useMemo, useEffect, useCallback } from 'react'
+import { DragDropContext, Droppable, DropResult } from '@hello-pangea/dnd'
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { Search, Grid, List, Plus, Calendar, MoreVertical, Trash2, Edit3, Download, Clock, Flag, PanelRightClose, FileText, FileSpreadsheetIcon, FileJson, BarChart2, RefreshCw, AlertTriangle } from 'lucide-react'
+import { Search, Grid, List, Download, PanelRightClose, FileText, FileSpreadsheetIcon, FileJson } from 'lucide-react'
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import {
   Select,
@@ -15,45 +13,28 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { format, differenceInDays } from 'date-fns'
-import { Calendar as CalendarComponent } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from '@/components/custom/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { toast } from "@/components/ui/use-toast"
-import { Checkbox } from "@/components/ui/checkbox"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { IconFileTypeCsv, IconFileTypePdf } from '@tabler/icons-react';
 import { initialData, initialUsers } from '../data/kanbans';
-import { Activity, Comment, Severity, Vulnerability } from '../data/schema';
-import { Progress } from "@/components/ui/progress"
-import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
-import { ChartContainer } from '@/components/ui/chart';
+import { Activity, Severity, Vulnerability } from '../data/schema';
+import ListView from './ListView';
+import VulnerabilityCard from './VulnerabilityCard';
+import VulnerabilityDialog from './VulnerabilityDialog';
+import AnalyticsDialog from './AnalyticsDialog';
+import RiskScoreDialog from './RiskScoreDialog';
+import AutoRefresh from './AutoRefresh';
+import AddColumnDialog from './AddColumnDialog';
 
 declare module 'jspdf' {
   interface jsPDF {
@@ -67,9 +48,15 @@ export default function EnhancedVulnerabilityKanban() {
   const [viewMode, setViewMode] = useState<'board' | 'list'>('board')
   const [sortBy, setSortBy] = useState<'severity' | 'score'>('severity')
   const [filterBy, setFilterBy] = useState<Severity | 'All'>('All')
+  const [selectedVulnerability, setSelectedVulnerability] = useState<Vulnerability | null>(null)
+  const [selectedItems, setSelectedItems] = useState<string[]>([])
+  const [activityLog, setActivityLog] = useState<Activity[]>([])
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false)
+  const [isAnalyticsDialogOpen, setIsAnalyticsDialogOpen] = useState(false)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
-  const [selectedVulnerability, setSelectedVulnerability] = useState<Vulnerability | null>(null)
+  const [isRiskScoreDialogOpen, setIsRiskScoreDialogOpen] = useState(false)
+  const [riskScore, setRiskScore] = useState(0)
   const [newVulnerability, setNewVulnerability] = useState<Omit<Vulnerability, 'id' | 'status' | 'comments' | 'priority'>>({
     title: '',
     severity: 'Low',
@@ -80,20 +67,6 @@ export default function EnhancedVulnerabilityKanban() {
     startDate: new Date(),
     endDate: new Date(),
   })
-  const [newComment, setNewComment] = useState('')
-  const [isAddColumnDialogOpen, setIsAddColumnDialogOpen] = useState(false)
-  const [newColumnTitle, setNewColumnTitle] = useState('')
-  const [selectedItems, setSelectedItems] = useState<string[]>([])
-  const [activityLog, setActivityLog] = useState<Activity[]>([])
-  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false)
-  const [isAnalyticsDialogOpen, setIsAnalyticsDialogOpen] = useState(false)
-  const [isAutoRefreshEnabled, setIsAutoRefreshEnabled] = useState(false)
-  const [refreshInterval, setRefreshInterval] = useState(60000) 
-  const [riskScore, setRiskScore] = useState(0)
-  const [isRiskScoreDialogOpen, setIsRiskScoreDialogOpen] = useState(false)
-  const [tags, setTags] = useState<string[]>([])
-  const [newTag, setNewTag] = useState('')
-  console.log(tags)
   useEffect(() => {
     const checkDueDates = () => {
       const today = new Date()
@@ -116,22 +89,13 @@ export default function EnhancedVulnerabilityKanban() {
     return () => clearInterval(interval)
   }, [columns])
 
-  useEffect(() => {
-    if (isAutoRefreshEnabled) {
-      const interval = setInterval(() => {
-        refreshData()
-      }, refreshInterval)
-      return () => clearInterval(interval)
-    }
-  }, [isAutoRefreshEnabled, refreshInterval])
-
   const refreshData = useCallback(() => {
     setColumns(prevColumns => {
       const updatedColumns = { ...prevColumns }
       Object.keys(updatedColumns).forEach(columnId => {
         updatedColumns[columnId].items = updatedColumns[columnId].items.map(item => ({
           ...item,
-          score: Math.floor(Math.random() * 100) 
+          score: Math.floor(Math.random() * 100)
         }))
       })
       return updatedColumns
@@ -197,20 +161,6 @@ export default function EnhancedVulnerabilityKanban() {
     })
   }
 
-  const getSeverityColor = (severity: Severity) => {
-    switch (severity) {
-      case 'Critical':
-        return 'bg-red-500 text-white'
-      case 'High':
-        return 'bg-orange-500 text-white'
-      case 'Medium':
-        return 'bg-yellow-500 text-white'
-      case 'Low':
-        return 'bg-blue-500 text-white'
-      default:
-        return 'bg-gray-500 text-white'
-    }
-  }
 
   const filteredAndSortedColumns = useMemo(() => {
     return Object.entries(columns).reduce((acc, [columnId, column]) => {
@@ -296,48 +246,17 @@ export default function EnhancedVulnerabilityKanban() {
     })
   }
 
-  const handleAddComment = () => {
-    if (!selectedVulnerability || !newComment) return
-
-    const newCommentObj: Comment = {
-      id: (selectedVulnerability.comments.length + 1).toString(),
-      user: 'Current User',
-      text: newComment,
-      timestamp: new Date()
-    }
-
-    setSelectedVulnerability(prev => ({
-      ...prev!,
-      comments: [...prev!.comments, newCommentObj]
-    }))
-
-    setNewComment('')
-    addActivity(`Added comment to "${selectedVulnerability.title}"`)
-    toast({
-      title: "Comment added",
-      description: `New comment added to ${selectedVulnerability.title}`,
-    })
-  }
-
-  const handleAddColumn = () => {
-    if (!newColumnTitle) return
-
+  const addColumn = (title: string) => {
     const newColumnId = `column${Object.keys(columns).length + 1}`
     setColumns(prev => ({
       ...prev,
       [newColumnId]: {
         id: newColumnId,
-        title: newColumnTitle,
+        title,
         items: []
       }
     }))
-    setIsAddColumnDialogOpen(false)
-    setNewColumnTitle('')
-    addActivity(`Added new column "${newColumnTitle}"`)
-    toast({
-      title: "Column added",
-      description: `New column "${newColumnTitle}" has been added`,
-    })
+    addActivity(`Added new column "${title}"`)
   }
 
   const handleDeleteVulnerability = (vulnerabilityId: string) => {
@@ -492,156 +411,6 @@ export default function EnhancedVulnerabilityKanban() {
     setIsExportDialogOpen(false);
   };
 
-  const handleAddTag = () => {
-    if (newTag && selectedVulnerability) {
-      setSelectedVulnerability(prev => ({
-        ...prev!,
-        tags: [...(prev!.tags || []), newTag]
-      }))
-      setNewTag('')
-      setTags(prevTags => [...new Set([...prevTags, newTag])])
-    }
-  }
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    if (selectedVulnerability) {
-      setSelectedVulnerability(prev => ({
-        ...prev!,
-        tags: prev!.tags.filter((tag: any) => tag !== tagToRemove)
-      }))
-    }
-  }
-
-  const VulnerabilityCard: React.FC<{ item: Vulnerability; index: number }> = ({ item, index }) => (
-    <Draggable key={item.id.toString()} draggableId={item.id.toString()} index={index}>
-      {(provided) => (
-        <div
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-        >
-          <Card className="mb-2 cursor-pointer">
-            <CardContent className="p-2">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    checked={selectedItems.includes(item.id)}
-                    onCheckedChange={() => toggleItemSelection(item.id)}
-                  />
-                  <Badge className={getSeverityColor(item.severity)}>
-                    {item.severity}
-                  </Badge>
-                </div>
-                <span className="text-sm">{item.score}</span>
-              </div>
-              <p className="text-sm font-medium">{item.title}</p>
-              <div className="flex items-center justify-between mt-2">
-                <Badge variant="outline" className="text-xs">
-                  {item.type}
-                </Badge>
-                <div className='flex items-center gap-1'>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="flex -space-x-2">
-                          {item.assignedTo.map((user, index) => (
-                            <img
-                              key={index}
-                              className="w-6 h-6 rounded-full border-2 border-white"
-                              src={initialUsers.find(u => u.name === user)?.avatar}
-                              alt={user}
-                            />
-                          ))}
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{item.assignedTo.join(', ')}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-              </div>
-              <div className="text-xs mt-1 flex justify-between items-center">
-                <span>{format(item.startDate, 'PP')} - {format(item.endDate, 'PP')}</span>
-                <div className="flex items-center gap-2">
-                  {item.priority && (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Flag className="h-4 w-4 text-red-500" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>High Priority</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  )}
-                  {differenceInDays(item.endDate, new Date()) <= 3 && (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Clock className="h-4 w-4 text-yellow-500" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Due Soon</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  )}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => {
-                        setSelectedVulnerability(item)
-                        setIsDetailDialogOpen(true)
-                      }}>
-                        <Edit3 className="mr-2 h-4 w-4" />
-                        <span>Edit</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDeleteVulnerability(item.id)}>
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        <span>Delete</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => {
-                        setColumns(prev => {
-                          const updatedColumns = { ...prev }
-                          for (const column of Object.values(updatedColumns)) {
-                            const itemIndex = column.items.findIndex(i => i.id === item.id)
-                            if (itemIndex !== -1) {
-                              column.items[itemIndex].priority = !column.items[itemIndex].priority
-                              break
-                            }
-                          }
-                          return updatedColumns
-                        })
-                        addActivity(`${item.priority ? 'Removed' : 'Set'} high priority for "${item.title}"`)
-                      }}>
-                        <Flag className="mr-2 h-4 w-4" />
-                        <span>{item.priority ? 'Remove Priority' : 'Set High Priority'}</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-              {item.tags && item.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {item.tags.map((tag: any, index: any) => (
-                    <Badge key={index} variant="secondary" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      )}
-    </Draggable>
-  )
 
   return (
     <div className="min-h-screen p-4">
@@ -679,178 +448,21 @@ export default function EnhancedVulnerabilityKanban() {
           </SelectContent>
         </Select>
 
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm">
-              <Plus className="h-4 w-4 mr-2" /> Add Vulnerability
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Add New Vulnerability</DialogTitle>
-              <DialogDescription>
-                Enter the details of the new vulnerability here. Click save when you're done.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="title" className="text-right">
-                  Title
-                </Label>
-                <Input
-                  id="title"
-                  value={newVulnerability.title}
-                  onChange={(e) => setNewVulnerability({ ...newVulnerability, title: e.target.value })}
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="severity" className="text-right">
-                  Severity
-                </Label>
-                <Select
-                  value={newVulnerability.severity}
-                  onValueChange={(value: Severity) => setNewVulnerability({ ...newVulnerability, severity: value })}
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select severity" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Critical">Critical</SelectItem>
-                    <SelectItem value="High">High</SelectItem>
-                    <SelectItem value="Medium">Medium</SelectItem>
-                    <SelectItem value="Low">Low</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="type" className="text-right">
-                  Type
-                </Label>
-                <Input
-                  id="type"
-                  value={newVulnerability.type}
-                  onChange={(e) => setNewVulnerability({ ...newVulnerability, type: e.target.value })}
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="score" className="text-right">
-                  Score
-                </Label>
-                <Input
-                  id="score"
-                  type="number"
-                  value={newVulnerability.score}
-                  onChange={(e) => setNewVulnerability({ ...newVulnerability, score: parseFloat(e.target.value) })}
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="assignedTo" className="text-right">
-                  Assigned To
-                </Label>
-                <Select
-                  value={newVulnerability.assignedTo[0] || ''}
-                  onValueChange={(value: string) => setNewVulnerability({ ...newVulnerability, assignedTo: [value] })}
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select user" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {initialUsers.map(user => (
-                      <SelectItem key={user.id} value={user.name}>{user.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="startDate" className="text-right">
-                  Start Date
-                </Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={`w-[280px] justify-start text-left font-normal ${!newVulnerability.startDate && "text-muted-foreground"
-                        }`}
-                    >
-                      <Calendar className="mr-2 h-4 w-4" />
-                      {newVulnerability.startDate ? format(newVulnerability.startDate, "PPP") : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <CalendarComponent
-                      mode="single"
-                      selected={newVulnerability.startDate}
-                      onSelect={(date) => date && setNewVulnerability({ ...newVulnerability, startDate: date })}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="endDate" className="text-right">
-                  End Date
-                </Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={`w-[280px] justify-start text-left font-normal ${!newVulnerability.endDate && "text-muted-foreground"
-                        }`}
-                    >
-                      <Calendar className="mr-2 h-4 w-4" />
-                      {newVulnerability.endDate ? format(newVulnerability.endDate, "PPP") : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <CalendarComponent
-                      mode="single"
-                      selected={newVulnerability.endDate}
-                      onSelect={(date) => date && setNewVulnerability({ ...newVulnerability, endDate: date })}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="submit" onClick={handleAddVulnerability}>Save vulnerability</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-        <Dialog open={isAddColumnDialogOpen} onOpenChange={setIsAddColumnDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm">
-              <Plus className="h-4 w-4 mr-2" /> Add Column
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Add New Column</DialogTitle>
-              <DialogDescription>
-                Enter the title for the new column.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="columnTitle" className="text-right">
-                  Title
-                </Label>
-                <Input
-                  id="columnTitle"
-                  value={newColumnTitle}
-                  onChange={(e) => setNewColumnTitle(e.target.value)}
-                  className="col-span-3"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="submit" onClick={handleAddColumn}>Add Column</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <VulnerabilityDialog
+          isOpen={isAddDialogOpen || isDetailDialogOpen}
+          onOpenChange={isAddDialogOpen ? setIsAddDialogOpen : setIsDetailDialogOpen}
+          vulnerability={selectedVulnerability}
+          onSave={isAddDialogOpen ? handleAddVulnerability : handleUpdateVulnerability}
+          isNewVulnerability={isAddDialogOpen}
+          addActivity={addActivity}
+        />
+
+        <RiskScoreDialog
+          isOpen={isRiskScoreDialogOpen}
+          onOpenChange={setIsRiskScoreDialogOpen}
+          riskScore={riskScore}
+        />
+        <AddColumnDialog onAddColumn={addColumn} />
 
         {selectedItems.length > 0 && (
           <div className="flex items-center gap-2">
@@ -930,117 +542,17 @@ export default function EnhancedVulnerabilityKanban() {
             </div>
           </SheetContent>
         </Sheet>
-        <Dialog open={isAnalyticsDialogOpen} onOpenChange={setIsAnalyticsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm">
-              <BarChart2 className="h-4 w-4 mr-2" /> Analytics
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[625px]">
-            <DialogHeader>
-              <DialogTitle>Vulnerability Analytics</DialogTitle>
-              <DialogDescription>
-                Overview of vulnerability statistics and trends.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="py-4">
-              <h3 className="font-semibold mb-2">Severity Distribution</h3>
-              <div className="flex justify-between mb-4">
-                {['Critical', 'High', 'Medium', 'Low'].map((severity) => (
-                  <div key={severity} className="text-center">
-                    <div className={`w-16 h-16 rounded-full flex items-center justify-center ${getSeverityColor(severity as Severity)}`}>
-                      {allVulnerabilities.filter(v => v.severity === severity).length}
-                    </div>
-                    <p className="mt-1 text-sm">{severity}</p>
-                  </div>
-                ))}
-              </div>
-              <h3 className="font-semibold mb-2">Status Distribution</h3>
-              <div className="flex justify-between mb-4">
-                {Object.entries(columns).map(([columnId, column]) => (
-                  <div key={columnId} className="text-center">
-                    <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
-                      {column.items.length}
-                    </div>
-                    <p className="mt-1 text-sm">{column.title}</p>
-                  </div>
-                ))}
-              </div>
-              <h3 className="font-semibold mb-2">Timeline</h3>
-              <ChartContainer
-                config={{
-                  move: {
-                    label: "Move",
-                    color: "hsl(var(--chart-1))",
-                  },
-                  exercise: {
-                    label: "Exercise",
-                    color: "hsl(var(--chart-2))",
-                  },
-                  stand: {
-                    label: "Stand",
-                    color: "hsl(var(--chart-3))",
-                  },
-                }}
-                className="mx-auto aspect-square w-full max-w-[80%]"
-              >
-                <RadialBarChart
-                  margin={{
-                    left: -10,
-                    right: -10,
-                    top: -10,
-                    bottom: -10,
-                  }}
-                  data={Object.entries(columns).map(([_, column]) => ({
-                    activity: column.title.toLowerCase(),
-                    value: (column.items.length) * 100, 
-                    fill: `var(--color-${column.title.toLowerCase()})`, 
-                  }))}
-                  innerRadius="20%"
-                  barSize={24}
-                  startAngle={90}
-                  endAngle={450}
-                >
-                  <PolarAngleAxis
-                    type="number"
-                    domain={[0, 100]}
-                    dataKey="value"
-                    tick={false}
-                  />
-                  <RadialBar dataKey="value" background cornerRadius={5} />
-                </RadialBarChart>
-              </ChartContainer>
-            </div>
-
-          </DialogContent>
-        </Dialog>
-        <Dialog open={isRiskScoreDialogOpen} onOpenChange={setIsRiskScoreDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm">
-              <AlertTriangle className="h-4 w-4 mr-2" /> Risk Score
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Overall Risk Score</DialogTitle>
-              <DialogDescription>
-                Current risk assessment based on vulnerabilities.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="py-4">
-              <div className="text-center mb-4">
-                <span className="text-4xl font-bold">{riskScore.toFixed(2)}</span>
-                <span className="text-sm text-muted-foreground">/100</span>
-              </div>
-              <Progress value={riskScore} className="w-full" />
-              <p className="mt-4 text-sm text-center">
-                {riskScore < 30 ? "Low risk. Keep monitoring." :
-                  riskScore < 70 ? "Moderate risk. Take action on critical items." :
-                    "High risk. Immediate attention required."}
-              </p>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <AnalyticsDialog
+          isOpen={isAnalyticsDialogOpen}
+          onOpenChange={setIsAnalyticsDialogOpen}
+          vulnerabilities={allVulnerabilities}
+          columns={columns}
+        />
+        <RiskScoreDialog
+          isOpen={isRiskScoreDialogOpen}
+          onOpenChange={setIsRiskScoreDialogOpen}
+          riskScore={riskScore}
+        />
         <ToggleGroup type="single" value={viewMode} onValueChange={(value: 'board' | 'list') => value && setViewMode(value)}>
           <ToggleGroupItem value="board" aria-label="Board view">
             <Grid className="h-4 w-4" />
@@ -1050,7 +562,6 @@ export default function EnhancedVulnerabilityKanban() {
           </ToggleGroupItem>
         </ToggleGroup>
       </div>
-
       <div className="flex gap-4 overflow-auto no-scrollbar">
         <div className="flex-grow">
           {viewMode === 'board' ? (
@@ -1069,7 +580,16 @@ export default function EnhancedVulnerabilityKanban() {
                           className="p-2 rounded-lg min-h-[200px]"
                         >
                           {column.items.map((item, index) => (
-                            <VulnerabilityCard key={item.id} item={item} index={index} />
+                            <VulnerabilityCard
+                              key={item.id}
+                              item={item}
+                              index={index}
+                              isSelected={selectedItems.includes(item.id)}
+                              toggleSelection={toggleItemSelection}
+                              setSelectedVulnerability={setSelectedVulnerability}
+                              setIsDetailDialogOpen={setIsDetailDialogOpen}
+                              handleDeleteVulnerability={handleDeleteVulnerability}
+                            />
                           ))}
                           {provided.placeholder}
                         </div>
@@ -1080,75 +600,25 @@ export default function EnhancedVulnerabilityKanban() {
               </div>
             </DragDropContext>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[30px]"></TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Severity</TableHead>
-                  <TableHead>Score</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Assigned To</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Start Date</TableHead>
-                  <TableHead>End Date</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {allVulnerabilities
-                  .filter(item =>
-                    item.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-                    (filterBy === 'All' || item.severity === filterBy)
-                  )
-                  .sort((a, b) => {
-                    if (sortBy === 'severity') {
-                      const severityOrder = { Critical: 0, High: 1, Medium: 2, Low: 3 }
-                      return severityOrder[a.severity] - severityOrder[b.severity]
-                    } else {
-                      return b.score - a.score
-                    }
-                  })
-                  .map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>
-                        <Checkbox
-                          checked={selectedItems.includes(item.id)}
-                          onCheckedChange={() => toggleItemSelection(item.id)}
-                        />
-                      </TableCell>
-                      <TableCell>{item.title}</TableCell>
-                      <TableCell>
-                        <Badge className={getSeverityColor(item.severity)}>
-                          {item.severity}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{item.score}</TableCell>
-                      <TableCell>{item.type}</TableCell>
-                      <TableCell>{item.assignedTo.join(', ')}</TableCell>
-                      <TableCell>{item.status}</TableCell>
-                      <TableCell>{format(item.startDate, 'PP')}</TableCell>
-                      <TableCell>{format(item.endDate, 'PP')}</TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="sm" onClick={() => {
-                          setSelectedVulnerability(item)
-                          setIsDetailDialogOpen(true)
-                        }}>
-                          <Edit3 className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleDeleteVulnerability(item.id)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
+            <ListView
+              vulnerabilities={allVulnerabilities}
+              selectedItems={selectedItems}
+              toggleItemSelection={(itemId: string) => {
+                setSelectedItems(prev =>
+                  prev.includes(itemId) ? prev.filter(id => id !== itemId) : [...prev, itemId]
+                )
+              }}
+              setSelectedVulnerability={setSelectedVulnerability}
+              setIsDetailDialogOpen={setIsDetailDialogOpen}
+              handleDeleteVulnerability={handleDeleteVulnerability}
+              searchTerm={searchTerm}
+              filterBy={filterBy}
+              sortBy={sortBy}
+            />
           )}
         </div>
       </div>
-
-      <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
+      {/* <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
         <DialogContent className="sm:max-w-[625px]">
           <DialogHeader>
             <DialogTitle>Vulnerability Details</DialogTitle>
@@ -1332,37 +802,10 @@ export default function EnhancedVulnerabilityKanban() {
             <Button type="submit" onClick={handleUpdateVulnerability}>Update vulnerability</Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
 
-      <div className="mt-4 flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <Label htmlFor="autoRefresh">Auto Refresh:</Label>
-          <Checkbox
-            id="autoRefresh"
-            checked={isAutoRefreshEnabled}
-            onCheckedChange={(checked) => setIsAutoRefreshEnabled(checked as boolean)}
-          />
-        </div>
-        {isAutoRefreshEnabled && (
-          <Select
-            value={refreshInterval.toString()}
-            onValueChange={(value) => setRefreshInterval(parseInt(value))}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Refresh Interval" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="30000">30 seconds</SelectItem>
-              <SelectItem value="60000">1 minute</SelectItem>
-              <SelectItem value="300000">5 minutes</SelectItem>
-              <SelectItem value="600000">10 minutes</SelectItem>
-            </SelectContent>
-          </Select>
-        )}
-        <Button onClick={refreshData}>
-          <RefreshCw className="h-4 w-4 mr-2" /> Refresh Now
-        </Button>
-      </div>
+
+      <AutoRefresh onRefresh={() => refreshData()} />
     </div>
   )
 }
