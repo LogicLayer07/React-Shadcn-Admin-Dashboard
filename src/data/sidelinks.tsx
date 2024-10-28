@@ -1,4 +1,4 @@
-import { IconLayoutDashboard, IconLayoutKanban } from "@tabler/icons-react"
+import { IconChecklist, IconLayoutDashboard, IconLayoutKanban } from "@tabler/icons-react"
 
 
 export interface NavLink {
@@ -25,5 +25,10 @@ export const sidelinks: SideLink[] = [
     href: '/kanban',
     icon: <IconLayoutKanban size={18} />,
   },
-
+  {
+    title: 'Products',
+    label: '',
+    href: '/product',
+    icon: <IconChecklist size={18} />,
+  },
 ]

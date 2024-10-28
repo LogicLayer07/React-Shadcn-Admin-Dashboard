@@ -26,6 +26,26 @@ const router = createBrowserRouter([
           Component: (await import('@/pages/kanban')).default,
         }),
       },
+      {
+        path: 'product',
+        lazy: async () => ({
+          Component: (await import('./pages/product')).default,
+        }),
+        children: [
+          {
+            index: true,
+            lazy: async () => ({
+              Component: (await import('./pages/product/list')).default,
+            }),
+          },
+          {
+            path: 'add',
+            lazy: async () => ({
+              Component: (await import('./pages/product/add')).default,
+            }),
+          },
+        ],
+      },
     ],
   },
   
