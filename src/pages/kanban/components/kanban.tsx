@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { DragDropContext, Droppable, DropResult } from '@hello-pangea/dnd'
 
-import { Search, Grid, List, PanelRightClose } from 'lucide-react'
+import { Search, Grid, List, PanelRightClose, Plus } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import {
@@ -26,8 +26,10 @@ import RiskScoreDialog from './RiskScoreDialog';
 import AutoRefresh from './AutoRefresh';
 import AddColumnDialog from './AddColumnDialog';
 import ExportDataDialog from './ExportDataDialog';
-
-
+import {
+  Dialog,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 export default function EnhancedVulnerabilityKanban() {
   const [columns, setColumns] = useState(initialData)
@@ -43,16 +45,6 @@ export default function EnhancedVulnerabilityKanban() {
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
   const [isRiskScoreDialogOpen, setIsRiskScoreDialogOpen] = useState(false)
   const [riskScore, setRiskScore] = useState(0)
-  const [newVulnerability, setNewVulnerability] = useState<Omit<Vulnerability, 'id' | 'status' | 'comments' | 'priority'>>({
-    title: '',
-    severity: 'Low',
-    tags: '',
-    type: '',
-    score: 0,
-    assignedTo: [],
-    startDate: new Date(),
-    endDate: new Date(),
-  })
   useEffect(() => {
     const checkDueDates = () => {
       const today = new Date()
@@ -173,7 +165,7 @@ export default function EnhancedVulnerabilityKanban() {
     return Object.values(columns).flatMap(column => column.items)
   }, [columns])
 
-  const handleAddVulnerability = () => {
+  const handleAddVulnerability = (newVulnerability: Omit<Vulnerability, 'id' | 'status' | 'comments' | 'priority'>) => {
     const newId = `card${Math.max(...allVulnerabilities.map(v => parseInt(v.id.replace('card', '')))) + 1}`
     const newItem: Vulnerability = {
       ...newVulnerability,
@@ -181,7 +173,6 @@ export default function EnhancedVulnerabilityKanban() {
       status: 'Draft',
       comments: [],
       priority: false,
-      tags: []
     }
     setColumns(prev => ({
       ...prev,
@@ -191,16 +182,6 @@ export default function EnhancedVulnerabilityKanban() {
       }
     }))
     setIsAddDialogOpen(false)
-    setNewVulnerability({
-      title: '',
-      severity: 'Low',
-      type: '',
-      tags: '',
-      score: 0,
-      assignedTo: [],
-      startDate: new Date(),
-      endDate: new Date(),
-    })
     addActivity(`Added new vulnerability "${newItem.title}"`)
     toast({
       title: "Vulnerability added",
@@ -208,7 +189,7 @@ export default function EnhancedVulnerabilityKanban() {
     })
   }
 
-  const handleUpdateVulnerability = () => {
+  const handleUpdateVulnerability = (updatedVulnerability: Omit<Vulnerability, 'id' | 'status' | 'comments' | 'priority'>) => {
     if (!selectedVulnerability) return
 
     setColumns(prev => {
@@ -216,7 +197,10 @@ export default function EnhancedVulnerabilityKanban() {
       for (const [columnId, column] of Object.entries(updatedColumns)) {
         const itemIndex = column.items.findIndex(item => item.id === selectedVulnerability.id)
         if (itemIndex !== -1) {
-          updatedColumns[columnId].items[itemIndex] = selectedVulnerability
+          updatedColumns[columnId].items[itemIndex] = {
+            ...selectedVulnerability,
+            ...updatedVulnerability
+          }
           break
         }
       }
@@ -225,12 +209,13 @@ export default function EnhancedVulnerabilityKanban() {
 
     setIsDetailDialogOpen(false)
     setSelectedVulnerability(null)
-    addActivity(`Updated vulnerability "${selectedVulnerability.title}"`)
+    addActivity(`Updated vulnerability "${updatedVulnerability.title}"`)
     toast({
       title: "Vulnerability updated",
-      description: `${selectedVulnerability.title} has been updated`,
+      description: `${updatedVulnerability.title} has been updated`,
     })
   }
+
 
   const addColumn = (title: string) => {
     const newColumnId = `column${Object.keys(columns).length + 1}`
@@ -309,6 +294,8 @@ export default function EnhancedVulnerabilityKanban() {
     }
     setActivityLog(prev => [newActivity, ...prev])
   }
+
+  console.log("setIsDetailDialogOpen", setIsDetailDialogOpen)
   return (
     <div className="min-h-screen p-4">
       <h1 className="text-2xl font-bold mb-4">Vulnerabilities</h1>
@@ -345,6 +332,14 @@ export default function EnhancedVulnerabilityKanban() {
           </SelectContent>
         </Select>
 
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm">
+              <Plus className="h-4 w-4 mr-2" /> Add Vulnerability
+            </Button>
+          </DialogTrigger>
+        </Dialog>
+
         <VulnerabilityDialog
           isOpen={isAddDialogOpen || isDetailDialogOpen}
           onOpenChange={isAddDialogOpen ? setIsAddDialogOpen : setIsDetailDialogOpen}
@@ -353,7 +348,6 @@ export default function EnhancedVulnerabilityKanban() {
           isNewVulnerability={isAddDialogOpen}
           addActivity={addActivity}
         />
-
         <RiskScoreDialog
           isOpen={isRiskScoreDialogOpen}
           onOpenChange={setIsRiskScoreDialogOpen}
@@ -385,7 +379,7 @@ export default function EnhancedVulnerabilityKanban() {
             </Select>
           </div>
         )}
-        <ExportDataDialog data={allVulnerabilities} /> 
+        <ExportDataDialog data={allVulnerabilities} />
         <Sheet>
           <SheetTrigger>
             <Button size="sm">
@@ -469,11 +463,7 @@ export default function EnhancedVulnerabilityKanban() {
             <ListView
               vulnerabilities={allVulnerabilities}
               selectedItems={selectedItems}
-              toggleItemSelection={(itemId: string) => {
-                setSelectedItems(prev =>
-                  prev.includes(itemId) ? prev.filter(id => id !== itemId) : [...prev, itemId]
-                )
-              }}
+              toggleItemSelection={toggleItemSelection}
               setSelectedVulnerability={setSelectedVulnerability}
               setIsDetailDialogOpen={setIsDetailDialogOpen}
               handleDeleteVulnerability={handleDeleteVulnerability}
