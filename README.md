@@ -1,33 +1,71 @@
-React Shadcn Admin Dashboard With Kanban, Tables, Charts, Calendar
+React Shadcn Admin Dashboard
+🚀 React Shadcn Admin Dashboard is a fully-featured, modern admin panel designed for developers who want to create an efficient and elegant user interface. This project showcases how to implement essential features such as Kanban boards, data tables, charts, calendars, and comprehensive management functionalities in your admin dashboard.
 
-🚀 Discover the React Shadcn Admin Dashboard, a fully-featured and modern admin panel built for developers who want to create an efficient and elegant user interface. This video demonstrates how to implement essential features like Kanban boards, data tables, charts, calendars, and management functionalities in your dashboard project.
+🌟 Key Features
+Kanban Board: Experience smooth drag-and-drop task and project management.
+Data Tables: Advanced tables with sorting, filtering, pagination, and data export capabilities.
+Charts: Interactive charts and graphs for visual data representation.
+Calendar: User-friendly interface for managing events, schedules, and appointments.
+User Management: Robust handling of user roles, permissions, and profiles.
+Product Management: Efficient organization of product listings, categories, and detailed management.
+Theming: Easy toggling between light and dark modes for enhanced usability.
+Responsive Layout: Ensures a seamless experience across various devices.
+🔧 Technologies Used
+React.js: For building powerful, responsive user interfaces.
+Shadcn: A modern component library simplifying frontend development.
+Tailwind CSS: Utility-first CSS framework for rapid custom styling.
+TypeScript: Provides type safety and improved code quality.
+Recharts: For creating beautiful and interactive data visualizations.
+FullCalendar: Integrated dynamic and interactive calendar functionalities.
+TanStack/React-Table: Advanced table management with sorting, filtering, and pagination.
+Leaflet & Leaflet-Routing-Machine: For map integration and route planning capabilities.
+React Router: For intuitive navigation and routing within the application.
+🚀 Live Demo
+Check out the live demo here: Admin Dashboard Live
 
-🌟 Key Features:
-Kanban Board: Drag-and-drop functionality for seamless task and project management.
-Data Tables: Advanced tables that support sorting, filtering, pagination, and exporting data.
-Charts: Display data visually with interactive charts and graphs.
-Calendar: Manage events, schedules, and appointments with a user-friendly calendar.
-User Management: Handle user roles, permissions, and profiles effectively.
-Product Management: Organize and manage product listings, categories, and details.
-Theming: Switch easily between light and dark modes for better usability.
-Responsive Layout: Adaptable design to ensure a great experience across all devices.
-🔧 Built using:
+Username: admin@gmail.com
+Password: admin@gmail.com
+📚 Use Cases
+This admin dashboard is ideal for:
 
-React.js: A JavaScript library for building powerful user interfaces.
-Shadcn: A modern component library that simplifies front-end development.
-Tailwind CSS: A utility-first CSS framework for designing custom styles quickly.
-TypeScript: Enhancing code quality and development speed with type safety.
-Recharts: Creating beautiful data visualizations.
-FullCalendar: Integrating a dynamic and interactive calendar.
-TanStack/React-Table: Managing complex table data with sorting, filtering, and pagination.
-Leaflet & Leaflet-Routing-Machine: Adding maps and route planning capabilities.
-React Router: For managing navigation and routing within the app.
-💻 Live Demo: https://admin-layout-sand.vercel.app/
-👤 Username: admin@gmail.com
-🔑 Password: admin@gmail.com
+Project management tools
+Content management systems (CMS)
+E-commerce admin panels
+Its robust, responsive design is adaptable for various use cases and can be customized to fit your project's needs.
 
-This dashboard is perfect for creating admin panels for various applications such as project management tools, content management systems, or e-commerce platforms. It demonstrates how to put together a feature-rich and responsive admin layout that can be customized for different needs.
+🛠 Installation and Setup
+Clone the repository:
 
-👉 Like, share, and subscribe for more tutorials and coding projects that help you enhance your web development skills!
+bash
+Sao chép mã
+git clone https://github.com/your-repo/admin-dashboard.git
+cd admin-dashboard
+Install dependencies:
 
-#React #Shadcn #AdminDashboard #Kanban #TailwindCSS #WebDevelopment #JavaScript #Calendar #DataTables #Charts #TypeScript #Recharts #FullCalendar #TanstackReactTable #Leaflet #LeafletRoutingMachine #UserManagement #ProductManagement
+bash
+Sao chép mã
+npm install
+# or
+yarn install
+Start the development server:
+
+bash
+Sao chép mã
+npm run dev
+# or
+yarn dev
+Open http://localhost:3000 to see your application in action.
+
+📦 Features in Detail
+Kanban Board: Built with drag-and-drop support to manage tasks efficiently.
+Data Tables: Equipped with TanStack/React-Table for managing complex data with ease.
+Charts: Displaying data with Recharts for clean and interactive visual representation.
+Calendar: FullCalendar for robust event scheduling and management.
+Maps and Routing: Integrated with Leaflet and Leaflet-Routing-Machine for displaying and planning routes.
+💻 Contributions
+Contributions are welcome! If you have any ideas or suggestions, feel free to submit an issue or a pull request.
+
+
+👉 Don't forget to like, share, and subscribe for more tutorials and web development projects that elevate your coding skills!
+
+#React #Shadcn #AdminDashboard #WebDevelopment #TypeScript #JavaScript #Kanban #TailwindCSS #DataTables #Charts #FullCalendar #Leaflet #UserManagement #ProductManagement
