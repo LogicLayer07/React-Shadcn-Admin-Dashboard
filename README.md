@@ -41,9 +41,3 @@ Bảng điều khiển này lý tưởng cho:
 
 Thiết kế linh hoạt và đáp ứng của nó có thể được tùy chỉnh cho nhiều trường hợp sử dụng khác nhau.
 
-## 🛠 Installation and Setup
-
-1. Clone repository:
-   ```bash
-   git clone https://github.com/your-repo/admin-dashboard.git
-   cd admin-dashboard
