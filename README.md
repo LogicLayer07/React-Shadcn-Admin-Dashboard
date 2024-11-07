@@ -1,71 +1,49 @@
-React Shadcn Admin Dashboard
-🚀 React Shadcn Admin Dashboard is a fully-featured, modern admin panel designed for developers who want to create an efficient and elegant user interface. This project showcases how to implement essential features such as Kanban boards, data tables, charts, calendars, and comprehensive management functionalities in your admin dashboard.
+# React Shadcn Admin Dashboard
 
-🌟 Key Features
-Kanban Board: Experience smooth drag-and-drop task and project management.
-Data Tables: Advanced tables with sorting, filtering, pagination, and data export capabilities.
-Charts: Interactive charts and graphs for visual data representation.
-Calendar: User-friendly interface for managing events, schedules, and appointments.
-User Management: Robust handling of user roles, permissions, and profiles.
-Product Management: Efficient organization of product listings, categories, and detailed management.
-Theming: Easy toggling between light and dark modes for enhanced usability.
-Responsive Layout: Ensures a seamless experience across various devices.
-🔧 Technologies Used
-React.js: For building powerful, responsive user interfaces.
-Shadcn: A modern component library simplifying frontend development.
-Tailwind CSS: Utility-first CSS framework for rapid custom styling.
-TypeScript: Provides type safety and improved code quality.
-Recharts: For creating beautiful and interactive data visualizations.
-FullCalendar: Integrated dynamic and interactive calendar functionalities.
-TanStack/React-Table: Advanced table management with sorting, filtering, and pagination.
-Leaflet & Leaflet-Routing-Machine: For map integration and route planning capabilities.
-React Router: For intuitive navigation and routing within the application.
-🚀 Live Demo
-Check out the live demo here: Admin Dashboard Live
+🚀 **React Shadcn Admin Dashboard** là một bảng điều khiển hiện đại và đầy đủ tính năng được thiết kế cho các nhà phát triển muốn tạo ra giao diện người dùng hiệu quả và thanh lịch. Dự án này trình bày cách triển khai các tính năng cần thiết như bảng Kanban, bảng dữ liệu, biểu đồ, lịch và các chức năng quản lý toàn diện trong dashboard của bạn.
 
-Username: admin@gmail.com
-Password: admin@gmail.com
-📚 Use Cases
-This admin dashboard is ideal for:
+## 🌟 Key Features
 
-Project management tools
-Content management systems (CMS)
-E-commerce admin panels
-Its robust, responsive design is adaptable for various use cases and can be customized to fit your project's needs.
+- **Kanban Board**: Trải nghiệm quản lý dự án và công việc với chức năng kéo-thả mượt mà.
+- **Data Tables**: Bảng dữ liệu nâng cao hỗ trợ sắp xếp, lọc, phân trang và xuất dữ liệu.
+- **Charts**: Biểu đồ và đồ thị tương tác giúp hiển thị dữ liệu trực quan.
+- **Calendar**: Giao diện thân thiện để quản lý sự kiện, lịch trình và cuộc hẹn.
+- **User Management**: Quản lý vai trò người dùng, quyền truy cập và hồ sơ hiệu quả.
+- **Product Management**: Tổ chức danh sách sản phẩm, phân loại và quản lý chi tiết sản phẩm.
+- **Theming**: Chuyển đổi dễ dàng giữa chế độ sáng và tối để tăng tính tiện dụng.
+- **Responsive Layout**: Thiết kế linh hoạt đảm bảo trải nghiệm tốt trên mọi thiết bị.
 
-🛠 Installation and Setup
-Clone the repository:
+## 🔧 Technologies Used
 
-bash
-Sao chép mã
-git clone https://github.com/your-repo/admin-dashboard.git
-cd admin-dashboard
-Install dependencies:
+- **React.js**: Thư viện JavaScript để xây dựng giao diện người dùng mạnh mẽ.
+- **Shadcn**: Thư viện component hiện đại đơn giản hóa việc phát triển giao diện.
+- **Tailwind CSS**: Khung CSS ưu tiên tiện ích giúp thiết kế nhanh chóng.
+- **TypeScript**: Cung cấp an toàn về kiểu dữ liệu và cải thiện chất lượng mã.
+- **Recharts**: Tạo biểu đồ dữ liệu đẹp mắt và tương tác.
+- **FullCalendar**: Tích hợp lịch động và tương tác.
+- **TanStack/React-Table**: Quản lý dữ liệu bảng phức tạp với sắp xếp, lọc và phân trang.
+- **Leaflet & Leaflet-Routing-Machine**: Thêm bản đồ và khả năng lập kế hoạch tuyến đường.
+- **React Router**: Quản lý điều hướng và định tuyến trong ứng dụng.
 
-bash
-Sao chép mã
-npm install
-# or
-yarn install
-Start the development server:
+## 🚀 Live Demo
 
-bash
-Sao chép mã
-npm run dev
-# or
-yarn dev
-Open http://localhost:3000 to see your application in action.
+Xem bản demo trực tiếp tại đây: [Admin Dashboard Live](https://admin-layout-sand.vercel.app/)
 
-📦 Features in Detail
-Kanban Board: Built with drag-and-drop support to manage tasks efficiently.
-Data Tables: Equipped with TanStack/React-Table for managing complex data with ease.
-Charts: Displaying data with Recharts for clean and interactive visual representation.
-Calendar: FullCalendar for robust event scheduling and management.
-Maps and Routing: Integrated with Leaflet and Leaflet-Routing-Machine for displaying and planning routes.
-💻 Contributions
-Contributions are welcome! If you have any ideas or suggestions, feel free to submit an issue or a pull request.
+- **Username**: `admin@gmail.com`
+- **Password**: `admin@gmail.com`
 
+## 📚 Use Cases
 
-👉 Don't forget to like, share, and subscribe for more tutorials and web development projects that elevate your coding skills!
+Bảng điều khiển này lý tưởng cho:
+- Công cụ quản lý dự án
+- Hệ thống quản lý nội dung (CMS)
+- Bảng điều khiển quản lý e-commerce
 
-#React #Shadcn #AdminDashboard #WebDevelopment #TypeScript #JavaScript #Kanban #TailwindCSS #DataTables #Charts #FullCalendar #Leaflet #UserManagement #ProductManagement
+Thiết kế linh hoạt và đáp ứng của nó có thể được tùy chỉnh cho nhiều trường hợp sử dụng khác nhau.
+
+## 🛠 Installation and Setup
+
+1. Clone repository:
+   ```bash
+   git clone https://github.com/your-repo/admin-dashboard.git
+   cd admin-dashboard
