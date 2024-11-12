@@ -31,7 +31,7 @@ import { DataTablePagination } from './data-table-pagination'
 import { DataTableToolbar } from './data-table-toolbar'
 import { Product } from '../data/schema'
 import { CompareDialog } from './CompareDialog'
-import { ChevronRight, ChevronDown } from 'lucide-react'
+import { ChevronRight, ChevronDown, PinIcon } from 'lucide-react'
 import { Button } from '@/components/custom/button'
 
 interface DataTableProps<TData, TValue> {
@@ -56,7 +56,7 @@ export function DataTable<TData, TValue>({
   const [globalFilter, setGlobalFilter] = React.useState("")
   const [grouping, setGrouping] = React.useState<GroupingState>([])
   const [expanded, setExpanded] = React.useState<ExpandedState>({})
-
+  const [pinnedRows, setPinnedRows] = React.useState<Record<string, boolean>>({})
   const globalFilterFn = React.useCallback(
     (row: any, _columnId: string, filterValue: string) => {
       const searchValue = filterValue.toLowerCase()
@@ -110,6 +110,19 @@ export function DataTable<TData, TValue>({
     globalFilterFn,
   })
 
+  const toggleRowPin = (rowId: string) => {
+    setPinnedRows(prev => ({
+      ...prev,
+      [rowId]: !prev[rowId]
+    }))
+  }
+
+  const sortedRows = React.useMemo(() => {
+    const unpinnedRows = table.getRowModel().rows.filter(row => !pinnedRows[row.id])
+    const pinnedRowsArray = table.getRowModel().rows.filter(row => pinnedRows[row.id])
+    return [...pinnedRowsArray, ...unpinnedRows]
+  }, [table.getRowModel().rows, pinnedRows])
+
   return (
     <div className='space-y-4'>
       <DataTableToolbar 
@@ -123,13 +136,16 @@ export function DataTable<TData, TValue>({
         isOpen={isCompareDialogOpen}
         onClose={() => setIsCompareDialogOpen(false)}
       />
-      <div className='rounded-md border'>
+      <div className='rounded-md border overflow-hidden'>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} colSpan={header.colSpan}>
+                  <TableHead 
+                    key={header.id} 
+                    style={{ width: header.getSize() }}
+                  >
                     {header.isPlaceholder ? null : (
                       <div
                         {...{
@@ -146,58 +162,80 @@ export function DataTable<TData, TValue>({
                         {header.column.getIsGrouped() && ' 🔥'}
                       </div>
                     )}
+                    <div
+                      {...{
+                        onMouseDown: header.getResizeHandler(),
+                        onTouchStart: header.getResizeHandler(),
+                        className: `resizer ${
+                          header.column.getIsResizing() ? 'isResizing' : ''
+                        }`,
+                        style: {
+                          position: 'absolute',
+                          right: 0,
+                          top: 0,
+                          height: '100%',
+                          width: '5px',
+                          background: 'rgba(0,0,0,.5)',
+                          cursor: 'col-resize',
+                          userSelect: 'none',
+                          touchAction: 'none',
+                        },
+                      }}
+                    />
                   </TableHead>
                 ))}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {cell.getIsGrouped() ? (
-                        <Button
-                          variant="ghost"
-                          {...{
-                            onClick: row.getToggleExpandedHandler(),
-                            style: { cursor: 'pointer' },
-                          }}
-                        >
-                          {row.getIsExpanded() ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}{' '}
-                          ({row.subRows.length})
-                        </Button>
-                      ) : cell.getIsAggregated() ? (
-                        flexRender(
-                          cell.column.columnDef.aggregatedCell ??
-                            cell.column.columnDef.cell,
+            {sortedRows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && 'selected'}
+                style={{
+                  backgroundColor: pinnedRows[row.id] ? 'rgba(59, 130, 246, 0.1)' : undefined,
+                }}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {cell.getIsGrouped() ? (
+                      <Button
+                        variant="ghost"
+                        {...{
+                          onClick: row.getToggleExpandedHandler(),
+                          style: { cursor: 'pointer' },
+                        }}
+                      >
+                        {row.getIsExpanded() ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                        {flexRender(
+                          cell.column.columnDef.cell,
                           cell.getContext()
-                        )
-                      ) : cell.getIsPlaceholder() ? null : (
-                        flexRender(cell.column.columnDef.cell, cell.getContext())
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className='h-24 text-center'
-                >
-                  No results.
+                        )}{' '}
+                        ({row.subRows.length})
+                      </Button>
+                    ) : cell.getIsAggregated() ? (
+                      flexRender(
+                        cell.column.columnDef.aggregatedCell ??
+                          cell.column.columnDef.cell,
+                        cell.getContext()
+                      )
+                    ) : cell.getIsPlaceholder() ? null : (
+                      flexRender(cell.column.columnDef.cell, cell.getContext())
+                    )}
+                  </TableCell>
+                ))}
+                <TableCell>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleRowPin(row.id)}
+                    aria-label={pinnedRows[row.id] ? "Unpin row" : "Pin row"}
+                  >
+                    <PinIcon className={`h-4 w-4 ${pinnedRows[row.id] ? 'text-blue-500' : ''}`} />
+                  </Button>
                 </TableCell>
               </TableRow>
-            )}
+            ))}
           </TableBody>
         </Table>
       </div>
