@@ -12,6 +12,7 @@ interface ListViewProps {
   toggleItemSelection: (itemId: string) => void
   setSelectedVulnerability: (vulnerability: Vulnerability) => void
   setIsDetailDialogOpen: (isOpen: boolean) => void
+  setIsSeverityDialogOpen: (isOpen: boolean) => void
   handleDeleteVulnerability: (vulnerabilityId: string) => void
   searchTerm: string
   filterBy: Severity | 'All'
@@ -24,6 +25,7 @@ export default function ListView({
   toggleItemSelection,
   setSelectedVulnerability,
   setIsDetailDialogOpen,
+  setIsSeverityDialogOpen,
   handleDeleteVulnerability,
   searchTerm,
   filterBy,
@@ -85,9 +87,14 @@ export default function ListView({
             </TableCell>
             <TableCell>{item.title}</TableCell>
             <TableCell>
+            <Button variant="ghost" size="sm" onClick={() => {
+                setSelectedVulnerability(item)
+                setIsSeverityDialogOpen(true)
+              }}>
               <Badge className={getSeverityColor(item.severity)}>
                 {item.severity}
               </Badge>
+              </Button>
             </TableCell>
             <TableCell>{item.score}</TableCell>
             <TableCell>{item.type}</TableCell>

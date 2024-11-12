@@ -43,6 +43,7 @@ export default function EnhancedVulnerabilityKanban() {
   const [isAnalyticsDialogOpen, setIsAnalyticsDialogOpen] = useState(false)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
+  const [isSeverityDialogOpen, setIsSeverityDialogOpen] = useState(false)
   const [isRiskScoreDialogOpen, setIsRiskScoreDialogOpen] = useState(false)
   const [riskScore, setRiskScore] = useState(0)
   useEffect(() => {
@@ -216,6 +217,33 @@ export default function EnhancedVulnerabilityKanban() {
     })
   }
 
+  const handleSaveSeverity = (updatedVulnerability: Omit<Vulnerability, 'id' | 'status' | 'comments' | 'priority'>) => {
+    if (!selectedVulnerability) return
+
+    setColumns(prev => {
+      const updatedColumns = { ...prev }
+      for (const [columnId, column] of Object.entries(updatedColumns)) {
+        const itemIndex = column.items.findIndex(item => item.id === selectedVulnerability.id)
+        if (itemIndex !== -1) {
+          updatedColumns[columnId].items[itemIndex] = {
+            ...selectedVulnerability,
+            ...updatedVulnerability
+          }
+          break
+        }
+      }
+      return updatedColumns
+    })
+
+    setIsSeverityDialogOpen(false)
+    setSelectedVulnerability(null)
+    addActivity(`Updated vulnerability "${updatedVulnerability.title}"`)
+    toast({
+      title: "Vulnerability updated",
+      description: `${updatedVulnerability.title} has been updated`,
+    })
+  }
+
 
   const addColumn = (title: string) => {
     const newColumnId = `column${Object.keys(columns).length + 1}`
@@ -295,7 +323,6 @@ export default function EnhancedVulnerabilityKanban() {
     setActivityLog(prev => [newActivity, ...prev])
   }
 
-  console.log("setIsDetailDialogOpen", setIsDetailDialogOpen)
   return (
     <div className="min-h-screen p-4">
       <h1 className="text-2xl font-bold mb-4">Vulnerabilities</h1>
@@ -339,12 +366,14 @@ export default function EnhancedVulnerabilityKanban() {
             </Button>
           </DialogTrigger>
         </Dialog>
-
         <VulnerabilityDialog
           isOpen={isAddDialogOpen || isDetailDialogOpen}
           onOpenChange={isAddDialogOpen ? setIsAddDialogOpen : setIsDetailDialogOpen}
           vulnerability={selectedVulnerability}
           onSave={isAddDialogOpen ? handleAddVulnerability : handleUpdateVulnerability}
+          onSaveSeverity={handleSaveSeverity}
+          isSeverityDialogOpen={isSeverityDialogOpen}
+          onSeverityDialogChange={setIsSeverityDialogOpen}
           isNewVulnerability={isAddDialogOpen}
           addActivity={addActivity}
         />
@@ -466,6 +495,7 @@ export default function EnhancedVulnerabilityKanban() {
               toggleItemSelection={toggleItemSelection}
               setSelectedVulnerability={setSelectedVulnerability}
               setIsDetailDialogOpen={setIsDetailDialogOpen}
+              setIsSeverityDialogOpen={setIsSeverityDialogOpen}
               handleDeleteVulnerability={handleDeleteVulnerability}
               searchTerm={searchTerm}
               filterBy={filterBy}

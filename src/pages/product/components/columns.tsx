@@ -5,6 +5,8 @@ import { DataTableColumnHeader } from './data-table-column-header'
 import { DataTableRowActions } from './data-table-row-actions'
 import { Product } from '../data/schema'
 import { brands, categories } from '../data/data'
+import { Button } from '@/components/custom/button'
+
 interface ColumnsProps {
   editProduct: (id: number, updatedProduct: Partial<Product>) => void
   deleteProduct: (id: number) => void
@@ -22,6 +24,18 @@ export const columns = ({
   labelProduct,
   compareProduct
 }: ColumnsProps): ColumnDef<Product>[] => [
+  {
+    id: "compare",
+    cell: ({ row }) => (
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => compareProduct(row.original)}
+      >
+        Compare
+      </Button>
+    ),
+  },
     {
       id: "select",
       header: ({ table }) => (
@@ -94,7 +108,7 @@ export const columns = ({
         const categoryData = categories.find(b => b.value === category)
         return (
           <div className="flex space-x-2">
-            {categoryData && categoryData.icon && <categoryData.icon className="mr-2 h-4 w-4 text-muted-foreground" />}
+              {categoryData && categoryData.icon && <categoryData.icon className="mr-2 h-4 w-4 text-muted-foreground" />}
             <Badge variant="outline">{category}</Badge>
           </div>
         )
