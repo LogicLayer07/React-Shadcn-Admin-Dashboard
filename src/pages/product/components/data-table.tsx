@@ -58,7 +58,7 @@ export function DataTable<TData, TValue>({
   const [expanded, setExpanded] = React.useState<ExpandedState>({})
 
   const globalFilterFn = React.useCallback(
-    (row: any, columnId: string, filterValue: string) => {
+    (row: any, filterValue: string) => {
       const searchValue = filterValue.toLowerCase()
       
       const getValue = (obj: any): any => {
