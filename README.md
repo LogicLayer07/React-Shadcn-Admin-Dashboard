@@ -1,11 +1,12 @@
 # React Shadcn Admin Dashboard
 
-🚀 **React Shadcn Admin Dashboard** là một bảng điều khiển hiện đại và đầy đủ tính năng được thiết kế cho các nhà phát triển muốn tạo ra giao diện người dùng hiệu quả và thanh lịch. Dự án này trình bày cách triển khai các tính năng cần thiết như bảng Kanban, bảng dữ liệu, biểu đồ, lịch và các chức năng quản lý toàn diện trong dashboard của bạn.
+🚀 **React Shadcn Admin Dashboard** là một bảng điều khiển hiện đại và đầy đủ tính năng được thiết kế cho các nhà phát triển muốn tạo ra giao diện người dùng hiệu quả và thanh lịch. Dự án này trình bày cách triển khai các tính năng cần thiết như bảng Kanban, bảng dữ liệu, biểu đồ, lịch, nhắn tin và các chức năng quản lý toàn diện trong dashboard của bạn.
 
 ## 🌟 Key Features
 
 - **Kanban Board**: Trải nghiệm quản lý dự án và công việc với chức năng kéo-thả mượt mà.
 - **Data Tables**: Bảng dữ liệu nâng cao hỗ trợ sắp xếp, lọc, phân trang và xuất dữ liệu.
+- **Chat**: Tính năng trò chuyện thời gian thực giúp cải thiện giao tiếp nhóm và xử lý các vấn đề ngay lập tức. Hỗ trợ gửi tin nhắn văn bản, tệp đính kèm, thông báo và tích hợp với các hệ thống thông báo khác để tăng cường hiệu quả làm việc.
 - **Charts**: Biểu đồ và đồ thị tương tác giúp hiển thị dữ liệu trực quan.
 - **Calendar**: Giao diện thân thiện để quản lý sự kiện, lịch trình và cuộc hẹn.
 - **User Management**: Quản lý vai trò người dùng, quyền truy cập và hồ sơ hiệu quả.
