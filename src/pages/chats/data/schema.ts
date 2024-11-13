@@ -4,6 +4,7 @@ export interface Message {
     timestamp: string;
     reactions?: { [emoji: string]: number };
     file?: string;
+    fileType?: string;
     image?: string;
     recalled?: boolean;
   }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Fragment } from 'react/jsx-runtime'
 import dayjs from 'dayjs'
 import {
@@ -7,7 +7,9 @@ import {
   IconEdit,
   IconMessages,
   IconMoodSmile,
+  IconPaperclip,
   IconPhone,
+  IconPhotoPlus,
   IconSearch,
   IconSend,
   IconTrash,
@@ -23,6 +25,7 @@ import { UserNav } from '@/components/user-nav'
 import { Button } from '@/components/custom/button'
 import { initialChats } from './data/chats'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Input } from '@/components/ui/input'
 type ChatUser = (typeof initialChats)[number]
 type Convo = ChatUser['messages'][number]
 
@@ -34,6 +37,8 @@ export default function Chats() {
   const [mobileSelectedUser, setMobileSelectedUser] = useState<ChatUser | null>(
     null
   )
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const imageInputRef = useRef<HTMLInputElement>(null)
   const emojis = ['👍', '❤️', '😂', '😮', '😢', '😡'];
   const filteredChatList = initialChats.filter(({ fullName }) =>
     fullName.toLowerCase().includes(search.trim().toLowerCase())
@@ -53,22 +58,33 @@ export default function Chats() {
     {}
   )
 
-  const handleSendMessage = () => {
-
-    if (!message.trim()) return
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!message.trim() && !imageInputRef.current?.files?.length && !imageInputRef.current?.files?.length) return;
 
     const newMessage: Convo = {
       sender: 'You',
       message: message,
       timestamp: dayjs().toISOString(),
     }
+    if (fileInputRef.current?.files?.length) {
+      const file = fileInputRef.current.files[0];
+      console.log("file", file);
+      newMessage.file = file.name;
+      newMessage.fileType = file.type;
+    }
 
-    const updatedUser = {
-      ...selectedUser,
-      messages: [newMessage, ...selectedUser.messages]
-    };
-    setSelectedUser(updatedUser)
+    if (imageInputRef.current?.files?.length) {
+      newMessage.image = URL.createObjectURL(imageInputRef.current.files[0])
+    }
+
+    setSelectedUser(prevUser => ({
+      ...prevUser,
+      messages: [newMessage, ...prevUser.messages],
+    }));
     setMessage('')
+    if (fileInputRef.current) fileInputRef.current.value = ''
+    if (imageInputRef.current) imageInputRef.current.value = ''
   }
   const handleReaction = (messageTimestamp: string, emoji: any) => {
     const updatedMessages = selectedUser.messages.map((msg) => {
@@ -100,7 +116,7 @@ export default function Chats() {
     setSelectedUser(updatedUser);
   };
 
-
+  console.log("currentMessage", currentMessage)
   return (
     <Layout fixed>
       {/* ===== Top Heading ===== */}
@@ -271,6 +287,20 @@ export default function Chats() {
                               ) : (
                                 <>
                                   {msg.message}{' '}
+                                  {msg.file && (
+                                    <div>
+                                      <span>{msg.file}</span>
+                                      <a href={`/files/${msg.file}`} download>
+                                        <Button variant="link" size="sm">Download</Button>
+                                      </a>
+                                    </div>
+                                  )}
+
+                                  {msg.image && (
+                                    <div>
+                                      <img src={msg.image} alt="image" className="w-32 h-32 object-cover" />
+                                    </div>
+                                  )}
                                   <span
                                     className={cn(
                                       'mt-1 block text-xs font-light italic text-muted-foreground',
@@ -322,13 +352,44 @@ export default function Chats() {
                 </div>
               </div>
               <form
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  handleSendMessage()
-                }}
+                onSubmit={handleSendMessage}
                 className='flex w-full flex-none gap-2'
               >
                 <div className='flex flex-1 items-center gap-2 rounded-md border border-input px-2 py-1 focus-within:outline-none focus-within:ring-1 focus-within:ring-ring lg:gap-4'>
+                  <div className="space-x-1">
+                    <Button
+                      size="icon"
+                      type="button"
+                      variant="ghost"
+                      className="h-8 rounded-md"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <IconPaperclip size={20} className="stroke-muted-foreground" />
+                    </Button>
+                    <Input
+                      type="file"
+                      ref={fileInputRef}
+                      className="hidden"
+                      accept=".pdf, .doc, .docx, .txt"
+                      onChange={() => handleSendMessage({ preventDefault: () => { } } as React.FormEvent)}
+                    />
+                    <Button
+                      size="icon"
+                      type="button"
+                      variant="ghost"
+                      className="h-8 rounded-md"
+                      onClick={() => imageInputRef.current?.click()}
+                    >
+                      <IconPhotoPlus size={20} className="stroke-muted-foreground" />
+                    </Button>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      ref={imageInputRef}
+                      className="hidden"
+                      onChange={() => handleSendMessage({ preventDefault: () => { } } as React.FormEvent)}
+                    />
+                  </div>
                   <label className='flex-1'>
                     <span className='sr-only'>Chat Text Box</span>
                     <input
