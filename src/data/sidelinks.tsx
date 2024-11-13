@@ -1,4 +1,4 @@
-import { IconChecklist, IconLayoutDashboard, IconLayoutKanban, IconMessages } from "@tabler/icons-react"
+import { IconCalendarWeek, IconChecklist, IconLayoutDashboard, IconLayoutKanban, IconMessages } from "@tabler/icons-react"
 
 
 export interface NavLink {
@@ -36,5 +36,11 @@ export const sidelinks: SideLink[] = [
     label: '',
     href: '/chats',
     icon: <IconMessages size={18} />,
+  },
+  {
+    title: 'Calendar',
+    label: '',
+    href: '/calendar',
+    icon: <IconCalendarWeek size={18} />,
   },
 ]
