@@ -6,12 +6,11 @@ import {
   IconDotsVertical,
   IconEdit,
   IconMessages,
-  IconPaperclip,
+  IconMoodSmile,
   IconPhone,
-  IconPhotoPlus,
-  IconPlus,
   IconSearch,
   IconSend,
+  IconTrash,
   IconVideo,
 } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
@@ -22,23 +21,23 @@ import { Search } from '@/components/search'
 import ThemeSwitch from '@/components/theme-switch'
 import { UserNav } from '@/components/user-nav'
 import { Button } from '@/components/custom/button'
-
-import { conversations } from '@/data/conversations.json'
-
-type ChatUser = (typeof conversations)[number]
+import { initialChats } from './data/chats'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+type ChatUser = (typeof initialChats)[number]
 type Convo = ChatUser['messages'][number]
 
 export default function Chats() {
   const [search, setSearch] = useState('')
-  const [selectedUser, setSelectedUser] = useState<ChatUser>(conversations[0])
+  const [data, _setData] = useState(initialChats)
+  const [selectedUser, setSelectedUser] = useState<ChatUser>(data[0])
+  const [message, setMessage] = useState('');
   const [mobileSelectedUser, setMobileSelectedUser] = useState<ChatUser | null>(
     null
   )
-
-  const filteredChatList = conversations.filter(({ fullName }) =>
+  const emojis = ['👍', '❤️', '😂', '😮', '😢', '😡'];
+  const filteredChatList = initialChats.filter(({ fullName }) =>
     fullName.toLowerCase().includes(search.trim().toLowerCase())
   )
-
   const currentMessage = selectedUser.messages.reduce(
     (acc: Record<string, Convo[]>, obj) => {
       const key = dayjs(obj.timestamp).format('D MMM, YYYY')
@@ -53,6 +52,54 @@ export default function Chats() {
     },
     {}
   )
+
+  const handleSendMessage = () => {
+
+    if (!message.trim()) return
+
+    const newMessage: Convo = {
+      sender: 'You',
+      message: message,
+      timestamp: dayjs().toISOString(),
+    }
+
+    const updatedUser = {
+      ...selectedUser,
+      messages: [newMessage, ...selectedUser.messages]
+    };
+    setSelectedUser(updatedUser)
+    setMessage('')
+  }
+  const handleReaction = (messageTimestamp: string, emoji: any) => {
+    const updatedMessages = selectedUser.messages.map((msg) => {
+      if (msg.timestamp === messageTimestamp) {
+        const updatedReactions = { ...msg.reactions };
+        if (updatedReactions[emoji]) {
+          updatedReactions[emoji]++;
+        } else {
+          updatedReactions[emoji] = 1;
+        }
+        return { ...msg, reactions: updatedReactions };
+      }
+      return msg;
+    });
+
+    const updatedUser = { ...selectedUser, messages: updatedMessages };
+    setSelectedUser(updatedUser);
+  };
+
+  const handleRecall = (messageTimestamp: string) => {
+    const updatedMessages = selectedUser.messages.map((msg) => {
+      if (msg.timestamp === messageTimestamp) {
+        return { ...msg, recalled: true };
+      }
+      return msg;
+    });
+
+    const updatedUser = { ...selectedUser, messages: updatedMessages };
+    setSelectedUser(updatedUser);
+  };
+
 
   return (
     <Layout fixed>
@@ -219,15 +266,53 @@ export default function Chats() {
                                   : 'self-start rounded-[16px_16px_16px_0] bg-secondary'
                               )}
                             >
-                              {msg.message}{' '}
-                              <span
-                                className={cn(
-                                  'mt-1 block text-xs font-light italic text-muted-foreground',
-                                  msg.sender === 'You' && 'text-right'
-                                )}
-                              >
-                                {dayjs(msg.timestamp).format('h:mm a')}
-                              </span>
+                              {msg.recalled ? (
+                                <span className="text-muted-foreground text-xs italic">This message was recalled</span>
+                              ) : (
+                                <>
+                                  {msg.message}{' '}
+                                  <span
+                                    className={cn(
+                                      'mt-1 block text-xs font-light italic text-muted-foreground',
+                                      msg.sender === 'You' && 'text-right'
+                                    )}
+                                  >
+                                    {dayjs(msg.timestamp).format('h:mm a')}
+                                  </span>
+                                </>
+                              )}
+                              <div className='flex items-center justify-end mt-4'>
+                                {msg.reactions &&
+                                  Object.entries(msg.reactions).map(([emoji]) => (
+                                    <span key={emoji} className="reaction-item">
+                                      {emoji}
+                                    </span>
+                                  ))}
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <Button variant="ghost" size="sm">
+                                      <IconMoodSmile size={16} />
+                                    </Button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-auto p-1">
+                                    <div className="flex gap-1">
+                                      {emojis.map((emoji) => (
+                                        <Button
+                                          key={emoji}
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => handleReaction(msg.timestamp, emoji)}
+                                        >
+                                          {emoji} {msg.reactions?.[emoji] || 0}
+                                        </Button>
+                                      ))}
+                                    </div>
+                                  </PopoverContent>
+                                </Popover>
+                                <Button variant="ghost" size="icon" onClick={() => handleRecall(msg.timestamp)}>
+                                  <IconTrash size={16} />
+                                </Button>
+                              </div>
                             </div>
                           ))}
                           <div className='text-center text-xs'>{key}</div>
@@ -236,44 +321,20 @@ export default function Chats() {
                   </div>
                 </div>
               </div>
-              <form className='flex w-full flex-none gap-2'>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  handleSendMessage()
+                }}
+                className='flex w-full flex-none gap-2'
+              >
                 <div className='flex flex-1 items-center gap-2 rounded-md border border-input px-2 py-1 focus-within:outline-none focus-within:ring-1 focus-within:ring-ring lg:gap-4'>
-                  <div className='space-x-1'>
-                    <Button
-                      size='icon'
-                      type='button'
-                      variant='ghost'
-                      className='h-8 rounded-md'
-                    >
-                      <IconPlus size={20} className='stroke-muted-foreground' />
-                    </Button>
-                    <Button
-                      size='icon'
-                      type='button'
-                      variant='ghost'
-                      className='hidden h-8 rounded-md lg:inline-flex'
-                    >
-                      <IconPhotoPlus
-                        size={20}
-                        className='stroke-muted-foreground'
-                      />
-                    </Button>
-                    <Button
-                      size='icon'
-                      type='button'
-                      variant='ghost'
-                      className='hidden h-8 rounded-md lg:inline-flex'
-                    >
-                      <IconPaperclip
-                        size={20}
-                        className='stroke-muted-foreground'
-                      />
-                    </Button>
-                  </div>
                   <label className='flex-1'>
                     <span className='sr-only'>Chat Text Box</span>
                     <input
                       type='text'
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
                       placeholder='Type your messages...'
                       className='h-8 w-full bg-inherit focus-visible:outline-none'
                     />
@@ -282,6 +343,7 @@ export default function Chats() {
                     variant='ghost'
                     size='icon'
                     className='hidden sm:inline-flex'
+                    type='submit'
                   >
                     <IconSend size={20} />
                   </Button>
@@ -289,6 +351,7 @@ export default function Chats() {
                 <Button
                   className='h-full sm:hidden'
                   rightSection={<IconSend size={18} />}
+                  onClick={handleSendMessage}
                 >
                   Send
                 </Button>
