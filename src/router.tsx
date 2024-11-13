@@ -52,6 +52,12 @@ const router = createBrowserRouter([
           Component: (await import('@/pages/chats')).default,
         }),
       },
+      {
+        path: 'calendar',
+        lazy: async () => ({
+          Component: (await import('@/pages/calendar')).default,
+        }),
+      },
     ],
   },
   
