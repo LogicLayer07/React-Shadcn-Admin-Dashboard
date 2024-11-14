@@ -9,7 +9,8 @@ import ReactMarkdown from 'react-markdown';
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
-const genAI = new GoogleGenerativeAI(process.env.VITE_APP_GOOGLE_API_KEY || "");
+const VITE_APP_GOOGLE_API_KEY = import.meta.env.VITE_APP_GOOGLE_API_KEY
+const genAI = new GoogleGenerativeAI(VITE_APP_GOOGLE_API_KEY || "");
 export default function SupportChats() {
   const [message, setMessage] = useState('');
   const [chatLog, setChatLog] = useState<{ role: 'user' | 'bot'; content: string }[]>([]);
