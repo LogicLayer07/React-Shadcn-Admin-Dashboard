@@ -104,7 +104,7 @@ export default function SupportChats() {
                 ))}
                 {isStreaming && currentResponse && (
                   <div className="text-left">
-                    <div className="inline-block p-2 rounded-lg bg-secondary">
+                    <div className="inline-block p-2 rounded-lg">
                       <strong>Bot:</strong>{' '}
                       <div className="whitespace-pre-wrap">
                         <MessageContent content={currentResponse} />
@@ -114,7 +114,7 @@ export default function SupportChats() {
                 )}
                 {isStreaming && !currentResponse && (
                   <div className="text-left">
-                    <div className="inline-block p-2 rounded-lg bg-secondary">
+                    <div className="inline-block p-2 rounded-lg">
                       <strong>Bot:</strong> Typing...
                     </div>
                   </div>
