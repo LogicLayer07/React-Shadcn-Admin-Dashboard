@@ -84,10 +84,10 @@ export default function SupportChats() {
         <div>
           <Card>
             <CardHeader>
-              <CardTitle>Chat with Gemini 1.5 Flash</CardTitle>
+              <CardTitle>Chat with Gemini</CardTitle>
             </CardHeader>
             <CardContent>
-              <ScrollArea className="h-[400px] mb-4 p-4 rounded-md border" ref={scrollAreaRef}>
+              <ScrollArea className="h-[600px] mb-4 p-4 rounded-md border" ref={scrollAreaRef}>
                 {chatLog.map((entry, index) => (
                   <div key={index} className={`mb-4 ${entry.role === 'user' ? 'text-right' : 'text-left'}`}>
                     <div
