@@ -1,4 +1,4 @@
-import { IconCalendarWeek, IconChecklist, IconHelpHexagon, IconLayoutDashboard, IconLayoutKanban, IconMessages, IconSettings, IconShoppingCart } from "@tabler/icons-react"
+import { IconCalendarWeek, IconChecklist, IconHelpHexagon, IconHome, IconLayoutDashboard, IconLayoutKanban, IconMessages, IconSettings, IconShoppingCart } from "@tabler/icons-react"
 
 
 export interface NavLink {
@@ -14,11 +14,17 @@ export interface SideLink extends NavLink {
 
 export const sidelinks: SideLink[] = [
   {
-    title: 'Dashboard',
+    title: 'Home',
     label: '',
     href: '/',
-    icon: <IconLayoutDashboard size={18} />,
+    icon: <IconHome size={18} />,
   },  
+  {
+    title: 'Dashboard',
+    label: '',
+    href: '/dashboard',
+    icon: <IconLayoutDashboard size={18} />,
+  },
   {
     title: 'KanBan',
     label: '',

@@ -6,21 +6,14 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { RecentSales } from './components/recent-sales'
-import { Overview } from './components/overview'
-import { Charts } from './components/analytics'
-import { ReportPage } from './components/reports'
-import CustomerReviews from './components/CustomerReviews'
-import InventoryManagement from './components/InventoryManagement'
-import MarketingCampaigns from './components/MarketingCampaigns'
-import StoreLocations from './components/StoreLocations'
-import SupplierManagement from './components/SupplierManagement'
+import { Tabs, TabsContent } from '@/components/ui/tabs'
+import { RecentSales } from '../components/recent-sales'
+import { Overview } from '../components/overview'
 
-export default function Dashboard() {
+
+export default function DashboardPage() {
   return (
-    <Layout fixed>
-       {/* <Layout> */}
+    <Layout>
       <Layout.Body>
         <div className='mb-2 flex items-center justify-between space-y-2'>
           <h1 className='text-2xl font-bold tracking-tight'>Dashboard</h1>
@@ -30,19 +23,6 @@ export default function Dashboard() {
           defaultValue='overview'
           className='space-y-4'
         >
-          <div className='w-full overflow-x-auto pb-2'>
-            <TabsList>
-              <TabsTrigger value='overview'>Overview</TabsTrigger>
-              <TabsTrigger value='analytics'>Analytics</TabsTrigger>
-              <TabsTrigger value='reports'>Reports</TabsTrigger>
-              <TabsTrigger value='notifications'>Notifications</TabsTrigger>
-              <TabsTrigger value='customerReviews'>CustomerReviews</TabsTrigger>
-              <TabsTrigger value='inventoryManagement'>InventoryManagement</TabsTrigger>
-              <TabsTrigger value='marketingCampaigns'>MarketingCampaigns</TabsTrigger>
-              <TabsTrigger value='storeLocations'>StoreLocations</TabsTrigger>
-              <TabsTrigger value='supplierManagement'>SupplierManagement</TabsTrigger>
-            </TabsList>
-          </div>
           <TabsContent value='overview' className='space-y-4'>
             <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
               <Card>
@@ -169,32 +149,8 @@ export default function Dashboard() {
               </Card>
             </div>
           </TabsContent>
-          <TabsContent value='analytics' className='space-y-4'>
-            <Charts />
-          </TabsContent>
-          <TabsContent value='reports' className='space-y-4'>
-            <ReportPage />
-          </TabsContent>
-          <TabsContent value='customerReviews' className='space-y-4'>
-            <CustomerReviews />
-          </TabsContent>
-          <TabsContent value='inventoryManagement' className='space-y-4'>
-            <InventoryManagement />
-          </TabsContent>
-          <TabsContent value='marketingCampaigns' className='space-y-4'>
-            <MarketingCampaigns />
-          </TabsContent>
-          <TabsContent value='storeLocations' className='space-y-4'>
-            <StoreLocations />
-          </TabsContent>
-          <TabsContent value='supplierManagement' className='space-y-4'>
-            <SupplierManagement />
-          </TabsContent>
         </Tabs>
       </Layout.Body>
     </Layout>
   )
 }
-
-
-

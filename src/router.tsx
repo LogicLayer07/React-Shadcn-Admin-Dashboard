@@ -17,7 +17,7 @@ const router = createBrowserRouter([
       {
         index: true,
         lazy: async () => ({
-          Component: (await import('./pages/kanban')).default,
+          Component: (await import('./pages/dashboard/overview')).default,
         }),
       },
       {
@@ -45,6 +45,12 @@ const router = createBrowserRouter([
             }),
           },
         ],
+      },
+      {
+        path: 'dashboard',
+        lazy: async () => ({
+          Component: (await import('@/pages/dashboard')).default,
+        }),
       },
       {
         path: 'chats',
