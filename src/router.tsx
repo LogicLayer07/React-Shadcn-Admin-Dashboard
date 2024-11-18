@@ -39,7 +39,7 @@ const router = createBrowserRouter([
             }),
           },
           {
-            path: 'add',
+            path: 'add-product',
             lazy: async () => ({
               Component: (await import('./pages/product/add')).default,
             }),
@@ -130,6 +130,36 @@ const router = createBrowserRouter([
             errorElement: <GeneralError className='h-[50svh]' minimal />,
           },
         ],
+      },
+      {
+        path: '/sign-in',
+        lazy: async () => ({
+          Component: (await import('./pages/auth/sign-in')).default,
+        }),
+      },
+      {
+        path: '/sign-in-2',
+        lazy: async () => ({
+          Component: (await import('./pages/auth/sign-in-2')).default,
+        }),
+      },
+      {
+        path: '/sign-up',
+        lazy: async () => ({
+          Component: (await import('./pages/auth/sign-up')).default,
+        }),
+      },
+      {
+        path: '/forgot-password',
+        lazy: async () => ({
+          Component: (await import('./pages/auth/forgot-password')).default,
+        }),
+      },
+      {
+        path: '/otp',
+        lazy: async () => ({
+          Component: (await import('./pages/auth/otp')).default,
+        }),
       },
     ],
   },
