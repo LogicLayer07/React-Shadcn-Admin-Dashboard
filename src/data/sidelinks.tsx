@@ -1,4 +1,4 @@
-import { IconCalendarWeek, IconChecklist, IconHelpHexagon, IconHexagonNumber1, IconHexagonNumber2, IconHexagonNumber3, IconHexagonNumber4, IconHexagonNumber5, IconHome, IconLayoutDashboard, IconLayoutKanban, IconMessages, IconSettings, IconShoppingCart, IconUserShield } from "@tabler/icons-react"
+import { IconBrandProducthunt, IconCalendarWeek, IconChecklist, IconHelpHexagon, IconHexagonNumber1, IconHexagonNumber2, IconHexagonNumber3, IconHexagonNumber4, IconHexagonNumber5, IconHome, IconLayoutDashboard, IconLayoutKanban, IconMessages, IconSettings, IconShoppingCart, IconUserShield } from "@tabler/icons-react"
 
 
 export interface NavLink {
@@ -18,7 +18,7 @@ export const sidelinks: SideLink[] = [
     label: '',
     href: '/',
     icon: <IconHome size={18} />,
-  },  
+  },
   {
     title: 'Dashboard',
     label: '',
@@ -34,16 +34,22 @@ export const sidelinks: SideLink[] = [
   {
     title: 'Products',
     label: '',
-    href: '/product',
+    href: '',
     icon: <IconChecklist size={18} />,
     sub: [
       {
+        title: 'Product',
+        label: '',
+        href: '/product',
+        icon: <IconBrandProducthunt size={18} />,
+      },
+      {
         title: 'Add Product',
         label: '',
-        href: 'product/add-product',
+        href: '/product/add-product',
         icon: <IconHexagonNumber1 size={18} />,
       },
-    ]
+    ],
   },
   {
     title: 'Chats',
@@ -54,7 +60,7 @@ export const sidelinks: SideLink[] = [
   {
     title: 'Order',
     label: '',
-    href: '/order', 
+    href: '/order',
     icon: <IconShoppingCart size={18} />,
   },
   {

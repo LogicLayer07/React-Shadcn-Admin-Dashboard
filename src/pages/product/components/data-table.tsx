@@ -30,10 +30,9 @@ import {
 import { DataTablePagination } from './data-table-pagination'
 import { DataTableToolbar } from './data-table-toolbar'
 import { Product } from '../data/schema'
-import { CompareDialog } from './CompareDialog'
 import { ChevronRight, ChevronDown, PinIcon } from 'lucide-react'
 import { Button } from '@/components/custom/button'
-
+import { CompareDialog } from './CompareDialog'
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]

@@ -6,6 +6,7 @@ import { DataTableRowActions } from './data-table-row-actions'
 import { Product } from '../data/schema'
 import { brands, categories } from '../data/data'
 import { Button } from '@/components/custom/button'
+import { useState } from 'react'
 
 interface ColumnsProps {
   editProduct: (id: number, updatedProduct: Partial<Product>) => void
@@ -24,18 +25,18 @@ export const columns = ({
   labelProduct,
   compareProduct
 }: ColumnsProps): ColumnDef<Product>[] => [
-  {
-    id: "compare",
-    cell: ({ row }) => (
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => compareProduct(row.original)}
-      >
-        Compare
-      </Button>
-    ),
-  },
+    // {
+    //   id: "compare",
+    //   cell: ({ row }) => (
+    //     <Button
+    //       variant="outline"
+    //       size="sm"
+    //       onClick={() => compareProduct(row.original)}
+    //     >
+    //       Compare
+    //     </Button>
+    //   ),
+    // },
     {
       id: "select",
       header: ({ table }) => (
@@ -57,13 +58,13 @@ export const columns = ({
       enableSorting: false,
       enableHiding: false,
     },
-    {
-      accessorKey: "id",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="ID" />,
-      cell: ({ row }) => <div className="w-[80px]">{row.getValue("id")}</div>,
-      enableSorting: false,
-      enableHiding: false,
-    },
+    // {
+    //   accessorKey: "id",
+    //   header: ({ column }) => <DataTableColumnHeader column={column} title="ID" />,
+    //   cell: ({ row }) => <div className="w-[10px]">{row.getValue("id")}</div>,
+    //   enableSorting: false,
+    //   enableHiding: false,
+    // },
     {
       accessorKey: "name",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
@@ -108,7 +109,7 @@ export const columns = ({
         const categoryData = categories.find(b => b.value === category)
         return (
           <div className="flex space-x-2">
-              {categoryData && categoryData.icon && <categoryData.icon className="mr-2 h-4 w-4 text-muted-foreground" />}
+            {categoryData && categoryData.icon && <categoryData.icon className="mr-2 h-4 w-4 text-muted-foreground" />}
             <Badge variant="outline">{category}</Badge>
           </div>
         )
@@ -120,12 +121,86 @@ export const columns = ({
       accessorFn: (row: Product) => row.general.category,
     },
     {
+      accessorKey: "variants",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Variants" />,
+      cell: ({ row }) => {
+        const variants = row.original.variants
+        const [selectedSize, setSelectedSize] = useState<string | null>(null)
+        const [selectedColor, setSelectedColor] = useState<string | null>(null)
+
+        const handleSizeSelect = (size: string) => {
+          setSelectedSize(size === selectedSize ? null : size)
+          setSelectedColor(null)
+        }
+
+        const handleColorSelect = (color: string) => {
+          setSelectedColor(color === selectedColor ? null : color)
+        }
+
+        const getPrice = () => {
+          if (selectedSize && selectedColor) {
+            const variant = variants.find((v: any) => v.size === selectedSize)
+            const colorVariant = variant?.colors.find((c: any) => c.color === selectedColor)
+            if (colorVariant) {
+              return (
+                <div className='flex flex-wrap gap-1'>
+                  <Badge variant="outline">${colorVariant.price.toFixed(2)}</Badge>
+                  <Badge variant="outline">${colorVariant.originalPrice.toFixed(2)}</Badge>
+                  <Badge variant="outline">{colorVariant.stockStatus}</Badge>
+                </div>
+              )
+            }
+          }
+          return null
+        }
+        return (
+          <div className="flex flex-wrap gap-2">
+            <div>
+              <div className="flex flex-wrap gap-1">
+                {variants.map((variant: any) => (
+                  <>
+                    <Button
+                      key={variant.size}
+                      size="sm"
+                      variant={selectedSize === variant.size ? "default" : "outline"}
+                      onClick={() => handleSizeSelect(variant.size)}
+                    >
+                      {variant.size}
+                    </Button>
+                  </>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="flex flex-wrap gap-1">
+                {variants
+                  .find((v: any) => v.size === selectedSize)
+                  ?.colors.map((color: any) => (
+                    <>
+                      <Button
+                        key={color.color}
+                        size="sm"
+                        variant={selectedColor === color.color ? "default" : "outline"}
+                        onClick={() => handleColorSelect(color.color)}
+                      >
+                        {color.color}
+                      </Button>
+                    </>
+                  ))}
+              </div>
+            </div>
+            {getPrice()}
+          </div>
+        )
+      },
+    },
+    {
       accessorKey: "description",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Description" />,
       cell: ({ row }) => {
         const description = row.original.general.description
         return (
-          <div className="max-w-[500px] truncate">{description}</div>
+          <div className="max-w-[200px] truncate">{description}</div>
         )
       },
     },
@@ -141,6 +216,7 @@ export const columns = ({
         )
       },
     },
+    
     {
       accessorKey: "careInstructions",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Care Instructions" />,
