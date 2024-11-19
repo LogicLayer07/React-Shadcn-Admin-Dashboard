@@ -32,7 +32,7 @@ import { DataTableToolbar } from './data-table-toolbar'
 import { Product } from '../data/schema'
 import { ChevronRight, ChevronDown, PinIcon } from 'lucide-react'
 import { Button } from '@/components/custom/button'
-import { CompareDialog } from './compareDialog'
+import { CompareDialog } from './CompareDialog'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
