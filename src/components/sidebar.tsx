@@ -114,6 +114,7 @@ export default function Sidebar({
           size='icon'
           variant='outline'
           className='absolute -right-5 top-1/2 z-50 hidden rounded-full md:inline-flex'
+          aria-label="Toggle Button"
         >
           <IconChevronsLeft
             stroke={1.5}
