@@ -7,7 +7,7 @@ export const ordersDataTotal: Order[] = [
     phone: "+1 234 567 890",
     type: "Sale",
     status: "Fulfilled",
-    date: "2024-01-15",
+    date: "2025-01-15",
     amount: 300.0,
     items: [
       { name: "Glimmer Lamp", quantity: 2, price: 125.0 },
@@ -37,7 +37,7 @@ export const ordersDataTotal: Order[] = [
     phone: "+1 987 654 321",
     type: "Sale",
     status: "Pending",
-    date: "2024-02-20",
+    date: "2025-02-20",
     amount: 450.0,
     items: [
       { name: "Solar Charger", quantity: 3, price: 150.0 }
@@ -66,7 +66,7 @@ export const ordersDataTotal: Order[] = [
     phone: "+1 456 789 123",
     type: "Return",
     status: "Processing",
-    date: "2024-03-05",
+    date: "2025-03-05",
     amount: 220.0,
     items: [
       { name: "Portable Speaker", quantity: 2, price: 110.0 }
@@ -95,7 +95,7 @@ export const ordersDataTotal: Order[] = [
     phone: "+1 321 654 987",
     type: "Sale",
     status: "Shipped",
-    date: "2024-04-18",
+    date: "2025-04-18",
     amount: 540.0,
     items: [
       { name: "Desk Lamp", quantity: 3, price: 180.0 }
@@ -124,7 +124,7 @@ export const ordersDataTotal: Order[] = [
     phone: "+1 654 321 789",
     type: "Sale",
     status: "Fulfilled",
-    date: "2024-05-22",
+    date: "2025-05-22",
     amount: 320.0,
     items: [
       { name: "Water Purifier", quantity: 1, price: 320.0 }
@@ -153,7 +153,7 @@ export const ordersDataTotal: Order[] = [
     phone: "+1 987 123 456",
     type: "Return",
     status: "Completed",
-    date: "2024-10-30",
+    date: "2025-10-30",
     amount: 120.0,
     items: [
       { name: "Electric Kettle", quantity: 1, price: 120.0 }
@@ -182,7 +182,7 @@ export const ordersDataTotal: Order[] = [
     phone: "+1 123 789 456",
     type: "Sale",
     status: "Pending",
-    date: "2024-10-10",
+    date: "2025-10-10",
     amount: 600.0,
     items: [
       { name: "Outdoor Tent", quantity: 2, price: 300.0 }
@@ -211,7 +211,7 @@ export const ordersDataTotal: Order[] = [
     phone: "+1 654 987 123",
     type: "Sale",
     status: "Shipped",
-    date: "2024-10-14",
+    date: "2025-10-14",
     amount: 400.0,
     items: [
       { name: "Fitness Tracker", quantity: 4, price: 100.0 }
@@ -240,7 +240,7 @@ export const ordersDataTotal: Order[] = [
     phone: "+1 321 456 789",
     type: "Return",
     status: "Processing",
-    date: "2024-10-02",
+    date: "2025-10-02",
     amount: 180.0,
     items: [
       { name: "Blender", quantity: 1, price: 180.0 }
@@ -269,7 +269,7 @@ export const ordersDataTotal: Order[] = [
     phone: "+1 789 654 321",
     type: "Sale",
     status: "Fulfilled",
-    date: "2024-10-11",
+    date: "2025-10-11",
     amount: 750.0,
     items: [
       { name: "Air Purifier", quantity: 3, price: 250.0 }
