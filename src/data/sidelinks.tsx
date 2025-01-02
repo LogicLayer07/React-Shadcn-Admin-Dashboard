@@ -1,4 +1,5 @@
 import { IconBrandProducthunt, IconCalendarWeek, IconChecklist, IconHelpHexagon, IconHexagonNumber1, IconHexagonNumber2, IconHexagonNumber3, IconHexagonNumber4, IconHexagonNumber5, IconHome, IconLayoutDashboard, IconLayoutKanban, IconMessages, IconSettings, IconShoppingCart, IconUserShield } from "@tabler/icons-react"
+import { User2Icon } from "lucide-react"
 
 
 export interface NavLink {
@@ -118,6 +119,12 @@ export const sidelinks: SideLink[] = [
         icon: <IconHexagonNumber5 size={18} />,
       },
     ],
+  },
+  {
+    title: 'Users',
+    label: '',
+    href: '/users',
+    icon: <User2Icon size={18} />,
   },
   {
     title: 'Settings',
