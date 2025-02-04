@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import ComingSoon from '@/components/coming-soon';
+import { useEffect } from 'react'
+// import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 // import { getMails } from '@/api/emailAPI'
 
 export default function ListEmail() {
-    const [listEmails, setLitEmails] = useState([])
+    // const [listEmails, setLitEmails] = useState([])
     useEffect(() => {
         const handleFetch = async () => {
             // const response = await getMails();
@@ -13,9 +14,10 @@ export default function ListEmail() {
     }, [])
     return (
         <>
-            <div className="p-8">
-                <h1 className="text-3xl font-bold mb-6">Emails Management</h1>
-                <Table>
+            <ComingSoon />
+            {/* <div className="p-8">
+                <h1 className="text-3xl font-bold mb-6">Emails Management</h1> */}
+                {/* <Table>
                     <TableHeader>
                         <TableRow>
                             <TableHead>Email</TableHead>
@@ -32,8 +34,8 @@ export default function ListEmail() {
                             </TableRow>
                         ))}
                     </TableBody>
-                </Table>
-            </div>
+                </Table> */}
+            {/* </div> */}
         </>
     )
 }

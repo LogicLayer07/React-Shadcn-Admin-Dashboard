@@ -76,21 +76,21 @@ const EmailMarketingManager: React.FC = () => {
   }, [])
 
   const handleSendEmails = useCallback(async () => {
-    const userList = sendToAll ? allUsers.map(user => user.email) : users.split(',').map(email => email.trim());
+    // const userList = sendToAll ? allUsers.map(user => user.email) : users.split(',').map(email => email.trim());
     setIsLoading(true);
 
     try {
-      const emailPromises = userList.map(async (userEmail) => {
-        const emailComponent = getEmailComponent(selectedTemplate, userEmail);
-        const htmlContent = renderToHtmlFallback(emailComponent);
+      // const emailPromises = userList.map(async (userEmail) => {
+        // const emailComponent = getEmailComponent(selectedTemplate, userEmail);
+        // const htmlContent = renderToHtmlFallback(emailComponent);
         // return sendEmails({
         //   to: userEmail,
         //   subject,
         //   html: htmlContent,
         // });
-      });
+      // });
 
-      await Promise.all(emailPromises);
+      // await Promise.all(emailPromises);
       toast({
         title: "Success",
         description: "All emails sent successfully!",
@@ -106,8 +106,6 @@ const EmailMarketingManager: React.FC = () => {
       setIsLoading(false);
     }
   }, [sendToAll, allUsers, users, selectedTemplate, subject, getEmailComponent, renderToHtmlFallback]);
-  console.log("allUsers",allUsers)
-  console.log("allUsers length",allUsers.length)
 
   return (
     <main className="grid flex-1 gap-4 p-4 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
