@@ -71,6 +71,27 @@ export const sidelinks: SideLink[] = [
     icon: <IconCalendarWeek size={18} />,
   },
   {
+    title: 'Email',
+    label: '',
+    href: '/emails',
+    icon: <IconShoppingCart size={18} />,
+    sub: [
+      {
+        title: 'Email',
+        label: '',
+        href: '/emails',
+        icon: <IconBrandProducthunt size={18} />,
+      },
+      {
+        title: 'Send Email',
+        label: '',
+        href: '/emails/send',
+        icon: <IconHexagonNumber1 size={18} />,
+      },
+      
+    ],
+  },
+  {
     title: 'Tasks',
     label: '',
     href: '/tasks',

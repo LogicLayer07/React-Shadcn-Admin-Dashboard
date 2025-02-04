@@ -71,6 +71,23 @@ const router = createBrowserRouter([
         }),
       },
       {
+        path: 'emails',
+        children: [
+          {
+            index: true,
+            lazy: async () => ({
+              Component: (await import('@/pages/email/list')).default,
+            }),
+          },
+          {
+            path: 'send',
+            lazy: async () => ({
+              Component: (await import('@/pages/email/send')).default,
+            }),
+          },
+        ],
+      },
+      {
         path: 'tasks',
         lazy: async () => ({
           Component: (await import('@/pages/tasks')).default,
