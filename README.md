@@ -26,13 +26,6 @@
 - **Leaflet & Leaflet-Routing-Machine**: Add maps and route planning capabilities.  
 - **React Router**: Handle navigation and routing within the application.  
 
-## 🚀 Live Demo  
-
-Check out the live demo here: [Admin Dashboard Live](https://admin-layout-sand.vercel.app/)  
-
-- **Username**: `admin@gmail.com`  
-- **Password**: `admin@gmail.com`  
-
 ## 📚 Use Cases  
 
 This dashboard is ideal for:  
